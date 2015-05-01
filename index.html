@@ -1,19 +1,69 @@
 <!doctype html>
 <html>
+    
     <head>
         <title>Canvas</title>
         <meta charset='utf-8' />
         <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet" type="text/css" href="styles.css" />
     </head>
+    
     <body>
-        <nav class="navbar navbar-default">
-            <div class="container-fluid">
+        <nav class="navbar navbar-default navbar-fixed-bottom">
+            <!-- <div class="container-fluid">
                 <a class="navbar-brand" href="#">Kursach</a>
-                <button id="redrawButt" type="button" class="btn btn-default navbar-btn">Redraw map</button>
+                <form class="navbar-form navbar-left">
+                    <div class="input-group">
+                        <span class="input-group-addon" id="basic-addon1">Rows</span>
+                        <input type="text" class="form-control" placeholder="Row" aria-describedby="basic-addon1">
+                    </div>
+                </form>
+                <form class="navbar-form navbar-left">
+                    <div class="input-group">
+                        <span class="input-group-addon" id="basic-addon1">Columns</span>
+                        <input type="text" class="form-control" placeholder="Column" aria-describedby="basic-addon1">
+                    </div>
+                </form>
+                <button id="redrawButt" type="button" class="btn btn-primary navbar-btn">Redraw map</button>
+            </div> -->
+          <div class="container-fluid">
+            <div class="navbar-header">
+              <a class="navbar-brand" href="#">WebPathFinder</a>
             </div>
+
+            <div class="container-fluid">
+                <form class="navbar-form navbar-left" role="form">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="input-group">
+                                <span class="input-group-addon">Rows</span>
+                                <input id="rowEdit" type="text" class="form-control" placeholder="Row">
+                            </div>
+                        </div>
+                         <div class="col-lg-2">
+                            <div class="input-group">
+                                <span class="input-group-addon">Col</span>
+                                <input id="columnEdit" type="text" class="form-control" placeholder="Columns">
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="input-group">
+                                <span class="input-group-addon">Grid</span>
+                                <input id="SqSizeEdit" type="text" class="form-control" placeholder="Columns">
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+
+              <ul class="nav navbar-nav navbar-right">
+                <li><button id="redrawButt" type="button" class="btn btn-primary navbar-btn">Redraw map</button></li>
+
+              </ul>
+            </div>
+          </div>
         </nav>
-    	<script src='astar.js'></script>
+        <script src='astar.js'></script>
         <canvas id='map'>Обновите браузер</canvas>
         <script src="canvas.js"></script>
         <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
@@ -22,4 +72,5 @@
         <script src="bootstrap/js/bootstrap.min.js"></script>
 
     </body>
+
 </html>
