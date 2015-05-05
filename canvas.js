@@ -5,6 +5,9 @@ var redrawButt = document.getElementById('redrawButt');
 var rowEdit = document.getElementById('rowEdit');
 var columnEdit = document.getElementById('columnEdit');
 var SqSizeEdit = document.getElementById('SqSizeEdit');
+var WallEdit = document.getElementById('WallEdit');
+var wallbutt = document.getElementById('wallbutt');
+var pathbutt = document.getElementById('pathbutt');
 
 ctx.lineWidth = 1;
 var XDist = 1;
@@ -13,7 +16,7 @@ var SqSize = 30;
 var map = [];
 var wall_percent = 0.125;
 var mapN = 30;
-var mapM = 50;
+var mapM = 30;
 var cells = [];
 var LastHandlCoord = false;
 var colors = { "free": "#FFFFFF", "wall": "#000000", "start": "#B00000", "end": "#B00000", "path": "#6495ED", "selected": "red" };
@@ -22,17 +25,21 @@ var SelectedEnd = [];
 var StartSelect = false;
 var cells = [];
 var currPath = [];
+var currStatus = "start";
+
 canvas.width = XDist + SqSize * mapM + ctx.lineWidth;
 canvas.height = YDist + SqSize * mapN + ctx.lineWidth;
 
 rowEdit.value = mapN;
 columnEdit.value = mapM;
 SqSizeEdit.value = SqSize;
+WallEdit.value = wall_percent*100;
 
 function generateMap(randPath, randWall) {
-	mapN = parseInt(rowEdit.value) > 0 ? parseInt(rowEdit.value): 30;
-	mapM = parseInt(columnEdit.value) > 0 ? parseInt(columnEdit.value): 50;
-	SqSize = parseInt(SqSizeEdit.value) > 0 ? parseInt(SqSizeEdit.value): 30;
+	mapN = parseInt(rowEdit.value) > 0 ? parseInt(rowEdit.value): mapN;
+	mapM = parseInt(columnEdit.value) > 0 ? parseInt(columnEdit.value): mapM;
+	SqSize = parseInt(SqSizeEdit.value) > 0 ? parseInt(SqSizeEdit.value): SqSize;
+	wall_percent = parseInt(WallEdit.value) >= 0 ? WallEdit.value/100: wall_percent;
 	canvas.width = XDist + SqSize * mapM + ctx.lineWidth;
 	canvas.height = YDist + SqSize * mapN + ctx.lineWidth;
 	ClearMap();
@@ -169,11 +176,12 @@ cell.prototype.isStartEnd = function () {
 
 canvas.onmousemove = function (event) {
 	var CurrHandlCoord = absToOtn(event.layerX, event.layerY);
-	if (!CoordsEqual(CurrHandlCoord, LastHandlCoord)) {
-		if (!cells[CurrHandlCoord[0]][CurrHandlCoord[1]].isWall()) {
-			FILL(colors.selected, CurrHandlCoord);
+	if (CurrHandlCoord[0]<mapN&&CurrHandlCoord[1]<mapM&&!CoordsEqual(CurrHandlCoord, LastHandlCoord)) {
+		CurrHandlCoord = cells[CurrHandlCoord[0]][CurrHandlCoord[1]];
+		if (!CurrHandlCoord.isWall()) {
+			FILL(colors[currStatus], [CurrHandlCoord.x,CurrHandlCoord.y]);
 			if (LastHandlCoord&&LastHandlCoord[0]<mapN&&LastHandlCoord[1]<mapM) cells[LastHandlCoord[0]][LastHandlCoord[1]].changeType();
-			LastHandlCoord = CurrHandlCoord;
+			LastHandlCoord = [CurrHandlCoord.x,CurrHandlCoord.y];
 		} else {
 			if (LastHandlCoord) cells[LastHandlCoord[0]][LastHandlCoord[1]].changeType();
 		}
@@ -183,22 +191,44 @@ canvas.onmousemove = function (event) {
 canvas.onclick = function (event) {
 	var CurrHandlCoord = absToOtn(event.layerX, event.layerY);
 	CurrHandlCoord = cells[CurrHandlCoord[0]][CurrHandlCoord[1]];
-	if (!CurrHandlCoord.isWall()) {
-		if (!StartSelect) {
-			SelectedStart.changeType("free");
-			SelectedStart = CurrHandlCoord;
-			pathClear(currPath);
-			SelectedStart.changeType("start");
-			StartSelect = true;
-			//map clear
-		} else {
-			StartSelect = false;
-			SelectedEnd.changeType("free");
-			SelectedEnd = CurrHandlCoord;
-			SelectedEnd.changeType("end");
-			AStarDraw(SelectedStart, SelectedEnd);
+
+	if (currStatus=="start") {
+		if (!CurrHandlCoord.isWall()) {
+			if (!StartSelect) {
+				SelectedStart.changeType("free");
+				SelectedStart = CurrHandlCoord;
+				pathClear(currPath);
+				SelectedStart.changeType("start");
+				StartSelect = true;
+			} else {
+				StartSelect = false;
+				SelectedEnd.changeType("free");
+				SelectedEnd = CurrHandlCoord;
+				SelectedEnd.changeType("end");
+				AStarDraw(SelectedStart, SelectedEnd);
+			}
+		}
+	} else {
+		if (!CurrHandlCoord.isStartEnd()) { //TODO: onclick + onmousemove
+			if (CurrHandlCoord.isFree()) {
+				CurrHandlCoord.changeType("wall");
+				map[CurrHandlCoord.x][CurrHandlCoord.y] = 0;
+			} else {
+				if (CurrHandlCoord.isWall()) {
+					CurrHandlCoord.changeType("free");
+					map[CurrHandlCoord.x][CurrHandlCoord.y] = 1;
+				}
+			}
 		}
 	}
+}
+console.log(wallbutt);
+wallbutt.onchange = function (event) {
+	currStatus = "wall";
+}
+
+pathbutt.onchange = function (event) {
+	currStatus = "start";
 }
 
 redrawButt.onclick = function (event) {

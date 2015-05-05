@@ -10,57 +10,53 @@
     
     <body>
         <nav class="navbar navbar-default navbar-fixed-bottom">
-            <!-- <div class="container-fluid">
-                <a class="navbar-brand" href="#">Kursach</a>
-                <form class="navbar-form navbar-left">
-                    <div class="input-group">
-                        <span class="input-group-addon" id="basic-addon1">Rows</span>
-                        <input type="text" class="form-control" placeholder="Row" aria-describedby="basic-addon1">
-                    </div>
-                </form>
-                <form class="navbar-form navbar-left">
-                    <div class="input-group">
-                        <span class="input-group-addon" id="basic-addon1">Columns</span>
-                        <input type="text" class="form-control" placeholder="Column" aria-describedby="basic-addon1">
-                    </div>
-                </form>
-                <button id="redrawButt" type="button" class="btn btn-primary navbar-btn">Redraw map</button>
-            </div> -->
           <div class="container-fluid">
             <div class="navbar-header">
               <a class="navbar-brand" href="#">WebPathFinder</a>
             </div>
 
-            <div class="container-fluid">
-                <form class="navbar-form navbar-left" role="form">
-                    <div class="row">
-                        <div class="col-xs-2">
-                            <div class="input-group">
-                                <span class="input-group-addon">Rows</span>
-                                <input id="rowEdit" type="text" class="form-control" placeholder="Row">
-                            </div>
+            <form class="navbar-form navbar-left" role="form">
+                <div class="row">
+                    <div class="col-xs-2">
+                        <div class="input-group">
+                            <span class="input-group-addon">Rows</span>
+                            <input id="rowEdit" type="text" class="form-control" placeholder="Row">
                         </div>
-                         <div class="col-xs-2">
-                            <div class="input-group">
-                                <span class="input-group-addon">Col</span>
-                                <input id="columnEdit" type="text" class="form-control" placeholder="Columns">
-                            </div>
-                        </div>
-                        <div class="col-xs-2">
-                            <div class="input-group">
-                                <span class="input-group-addon">Grid</span>
-                                <input id="SqSizeEdit" type="text" class="form-control" placeholder="Columns">
-                            </div>
-                        </div>
-
                     </div>
-                </form>
-
-              <ul class="nav navbar-nav navbar-right">
+                     <div class="col-xs-2">
+                        <div class="input-group">
+                            <span class="input-group-addon">Col</span>
+                            <input id="columnEdit" type="text" class="form-control" placeholder="Columns">
+                        </div>
+                    </div>
+                    <div class="col-xs-2">
+                        <div class="input-group">
+                            <span class="input-group-addon">Grid</span>
+                            <input id="SqSizeEdit" type="text" class="form-control" placeholder="Columns">
+                        </div>
+                    </div>
+                    <div class="col-xs-2">
+                        <div class="input-group">
+                            <span class="input-group-addon">Wall</span>
+                            <input id="WallEdit" type="text" class="form-control" placeholder="Wall">
+                            <span class="input-group-addon">%</span>
+                        </div>
+                    </div>
+                    <div class="btn-group" data-toggle="buttons">
+                        <label class="btn btn-primary active">
+                            <input type="radio" name="options" id="pathbutt" autocomplete="off"><img src="pathpoint.png">
+                        </label>
+                        <label class="btn btn-primary">
+                            <input type="radio" name="options" id="wallbutt" autocomplete="off" checked><img src="wall.png">
+                        </label>
+                    </div>
+                </div>
+            </form>
+ 
+            
+            <ul class="nav navbar-nav navbar-right container-fluid">
                 <li><button id="redrawButt" type="button" class="btn btn-primary navbar-btn">Redraw map</button></li>
-
-              </ul>
-            </div>
+            </ul>
           </div>
         </nav>
         <script src='astar.js'></script>
