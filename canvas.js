@@ -14,7 +14,7 @@ var pathbutt = document.getElementById('pathbutt');
 var checkGrid = document.getElementById('checkGrid');
 ctx2.fillStyle = "#000000";
 ctx2.fillRect(0, 0, anim.width, anim.height);
-
+//
 ctx.lineWidth = 1;
 var XDist = 1;
 var YDist = 21;
