@@ -23,18 +23,21 @@
                             <input id="rowEdit" type="text" class="form-control" placeholder="Row">
                         </div>
                     </div>
+
                      <div class="col-xs-2">
                         <div class="input-group">
                             <span class="input-group-addon">Col</span>
                             <input id="columnEdit" type="text" class="form-control" placeholder="Columns">
                         </div>
                     </div>
+
                     <div class="col-xs-2">
                         <div class="input-group">
                             <span class="input-group-addon">Grid</span>
                             <input id="SqSizeEdit" type="text" class="form-control" placeholder="Columns">
                         </div>
                     </div>
+
                     <div class="col-xs-2">
                         <div class="input-group">
                             <span class="input-group-addon">Wall</span>
@@ -42,6 +45,7 @@
                             <span class="input-group-addon">%</span>
                         </div>
                     </div>
+
                     <div class="btn-group" data-toggle="buttons">
                         <label class="btn btn-primary active">
                             <input type="radio" name="options" id="pathbutt" autocomplete="off"><img src="pathpoint.png">
@@ -49,6 +53,12 @@
                         <label class="btn btn-primary">
                             <input type="radio" name="options" id="wallbutt" autocomplete="off" checked><img src="wall.png">
                         </label>
+                    </div>
+
+                    <div class="btn-group" data-toggle="buttons">
+                      <label class="btn btn-primary active">
+                        <input id="checkGrid" type="checkbox" autocomplete="off" checked>Grid
+                      </label>
                     </div>
                 </div>
             </form>
@@ -61,6 +71,7 @@
         </nav>
         <script src='astar.js'></script>
         <canvas id='map'>Обновите браузер</canvas>
+        <canvas id="anim"></canvas>
         <script src="canvas.js"></script>
         <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
