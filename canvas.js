@@ -14,15 +14,16 @@ var pathbutt = document.getElementById('pathbutt');
 var checkGrid = document.getElementById('checkGrid');
 ctx2.fillStyle = "#000000";
 ctx2.fillRect(0, 0, anim.width, anim.height);
-//
+var docHeight = $(document).height()-$("#navbar").height();
+var docWidth = $(document).width();
 ctx.lineWidth = 1;
 var XDist = 1;
 var YDist = 21;
 var SqSize = 30;
 var map = [];
 var wall_percent = 0.125;
-var mapN = 30;
-var mapM = 30;
+var mapN = Math.floor(docHeight/SqSize)-1;
+var mapM = Math.floor(docWidth/SqSize)-1;
 var cells = [];
 var LastHandlCoord = false;
 var colors = { "free": "#FFFFFF", "wall": "#505050", "start": "#B00000", "end": "#B00000", "path": "#6495ED", "selected": "red" };
@@ -30,7 +31,7 @@ var SelectedStart = false;
 var SelectedEnd = false;
 var StartSelect = false;
 var cells = [];
-var currPath = [];
+var currPath = false;
 var currStatus = "selected";
 var gridEn = true;
 
@@ -43,6 +44,7 @@ SqSizeEdit.value = SqSize;
 WallEdit.value = wall_percent*100;
 
 function generateMap(randPath, randWall) {
+	currPath = false;
 	mapN = parseInt(rowEdit.value) > 0 ? parseInt(rowEdit.value): mapN;
 	mapM = parseInt(columnEdit.value) > 0 ? parseInt(columnEdit.value): mapM;
 	SqSize = parseFloat(SqSizeEdit.value) > 0 ? parseFloat(SqSizeEdit.value): SqSize;
@@ -138,11 +140,23 @@ function absToOtn(x, y, xabs, yabs) {
 	return [i, j, XDist + 1 + j * SqSize+(xabs-x), YDist + 1 + i * SqSize+(yabs-y)];
 }
 
+function otnToAbsX(j) {
+	var x = XDist + (j+1) * SqSize;
+	return x;
+}
 
+function otnToAbsY(i) {
+	var y = YDist + (i+1) * SqSize;
+	return y;
+}
 
 function pathClear(path) {
-	for (var i = 0; i < path.length; i++) {
-		cells[path[i].x][path[i].y].changeType("free");
+	if (path) {
+		if (SelectedStart)
+			SelectedStart.changeType("free");
+		for (var i = 0; i < path.length; i++) {
+			cells[path[i].x][path[i].y].changeType("free");
+		}
 	}
 }
 
@@ -166,14 +180,19 @@ function AStarDraw(SelectedStart, SelectedEnd) {
 	var end = graph.grid[SelectedEnd.x][SelectedEnd.y];
 	currPath = astar.search(graph, start, end);
 	var i = 0;
-	if (currPath.length>1)
+	if (currPath.length>1) {
 		var inter = setInterval(function () {
 			pathDrowTik(currPath,i);
 			if ((i+=1)==currPath.length-1) clearInterval(inter); 
 		}, 15);
-	// for (var i = 0; i < currPath.length - 1; i++) {
-	// 	cells[currPath[i].x][currPath[i].y].changeType("path");
-	// }
+	}
+	console.log(currPath);
+	ctx.beginPath();
+	// for (var p=1; p <= currPath.length - 1; p++) {
+	// 	ctx.moveTo(otnToAbsX(currPath[p-1].y)-SqSize/2,otnToAbsY(currPath[p-1].x)-SqSize/2);
+	// 	ctx.lineTo(otnToAbsX(currPath[p].y)-SqSize/2,otnToAbsY(currPath[p].x)-SqSize/2);
+	// 	ctx.stroke();
+	// };
 }
 
 ///////////////////////////////////////////////////////Object prototype
@@ -186,8 +205,10 @@ function cell(x, y, type) {
 
 cell.prototype.changeType = function (type,anim,PageX,PageY) {
 	this.type = type || this.type;
-	if (anim)
+	if (anim) {
 		FILLanim(colors[this.type], PageX, PageY);
+		FILL(colors[this.type], [this.x, this.y]);
+	}
 	else
 		FILL(colors[this.type], [this.x, this.y]);
 }
@@ -229,16 +250,12 @@ canvas.onclick = function (event) {
 	if (currStatus=="selected") {
 		if (!CurrHandlCoord.isWall()) {
 			if (!StartSelect) {
-				if (SelectedEnd)
-					SelectedStart.changeType("free");
-				SelectedStart = CurrHandlCoord;
 				pathClear(currPath);
+				SelectedStart = CurrHandlCoord;		
 				SelectedStart.changeType("start",true,PageX,PageY);
 				StartSelect = true;
 			} else {
 				StartSelect = false;
-				if (SelectedEnd)
-					SelectedEnd.changeType("free");
 				SelectedEnd = CurrHandlCoord;
 				SelectedEnd.changeType("end",true,PageX,PageY);
 				AStarDraw(SelectedStart, SelectedEnd);
@@ -251,7 +268,7 @@ canvas.onclick = function (event) {
 				map[CurrHandlCoord.x][CurrHandlCoord.y] = 0;
 			} else {
 				if (CurrHandlCoord.isWall()) {
-					CurrHandlCoord.changeType("free");
+					CurrHandlCoord.changeType("free",true,PageX,PageY);
 					map[CurrHandlCoord.x][CurrHandlCoord.y] = 1;
 				}
 			}
