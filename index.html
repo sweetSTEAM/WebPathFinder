@@ -2,7 +2,7 @@
 <html>
     
     <head>
-        <title>Canvas</title>
+        <title>Web Path Finder</title>
         <meta charset='utf-8' />
         <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet" type="text/css" href="styles.css" />
@@ -60,6 +60,11 @@
                         <input id="checkGrid" type="checkbox" autocomplete="off" checked>Grid
                       </label>
                     </div>
+                    <div class="btn-group" data-toggle="buttons">
+                      <label class="btn btn-primary">
+                        <input id="checkDebug" type="checkbox" autocomplete="off">Debug
+                      </label>
+                    </div>
                 </div>
             </form>
  
@@ -69,7 +74,7 @@
             </ul>
           </div>
         </nav>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+        <script src="jq.js"></script>
         <script src='astar.js'></script>
         <canvas id='map'>Обновите браузер</canvas>
         <canvas id="anim"></canvas>

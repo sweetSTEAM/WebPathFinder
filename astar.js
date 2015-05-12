@@ -40,12 +40,14 @@ var astar = {
         start.h = heuristic(start, end);
 
         openHeap.push(start);
-
+        visitedCells = [];
         while(openHeap.size() > 0) {
 
             // Grab the lowest f(x) to process next.  Heap keeps this sorted for us.
             var currentNode = openHeap.pop();
+            visitedCells.push(currentNode);
 
+            
             // End case -- result has been found, return the traced path.
             if(currentNode === end) {
                 return pathTo(currentNode);

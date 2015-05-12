@@ -12,6 +12,7 @@ var WallEdit = document.getElementById('WallEdit');
 var wallbutt = document.getElementById('wallbutt');
 var pathbutt = document.getElementById('pathbutt');
 var checkGrid = document.getElementById('checkGrid');
+var edits = ['#rowEdit','#WallEdit','#columnEdit','#SqSizeEdit'];
 ctx2.fillStyle = "#000000";
 ctx2.fillRect(0, 0, anim.width, anim.height);
 var docHeight = $(document).height()-$("#navbar").height();
@@ -26,7 +27,7 @@ var mapN = Math.floor(docHeight/SqSize)-1;
 var mapM = Math.floor(docWidth/SqSize)-1;
 var cells = [];
 var LastHandlCoord = false;
-var colors = { "free": "#FFFFFF", "wall": "#505050", "start": "#B00000", "end": "#B00000", "path": "#6495ED", "selected": "red" };
+var colors = { "free": "#FFFFFF", "wall": "#505050", "start": "#B00000", "end": "#B00000", "path" : "#2A52BE", "open": "#6495ED", "selected": "red" };
 var SelectedStart = false;
 var SelectedEnd = false;
 var StartSelect = false;
@@ -34,7 +35,9 @@ var cells = [];
 var currPath = false;
 var currStatus = "selected";
 var gridEn = true;
-
+var visitedCells = false;
+var debugEn = false;
+var wallPressed = false;
 canvas.width = XDist + SqSize * mapM + ctx.lineWidth;
 canvas.height = YDist + SqSize * mapN + ctx.lineWidth;
 
@@ -44,6 +47,7 @@ SqSizeEdit.value = SqSize;
 WallEdit.value = wall_percent*100;
 
 function generateMap(randPath, randWall) {
+	visitedCells = false;
 	currPath = false;
 	mapN = parseInt(rowEdit.value) > 0 ? parseInt(rowEdit.value): mapN;
 	mapM = parseInt(columnEdit.value) > 0 ? parseInt(columnEdit.value): mapM;
@@ -105,7 +109,6 @@ function CoordsEqual(arr1, arr2) {
 }
 
 function FILL(color, coords) {
-
 	ctx.fillStyle = color;
 	var x = XDist + 1 + coords[1] * SqSize;
 	var y = YDist + 1 + coords[0] * SqSize;
@@ -150,19 +153,26 @@ function otnToAbsY(i) {
 	return y;
 }
 
-function pathClear(path) {
+function pathClear(path,open) {
 	if (path) {
 		if (SelectedStart)
 			SelectedStart.changeType("free");
 		for (var i = 0; i < path.length; i++) {
-			cells[path[i].x][path[i].y].changeType("free");
+			var currCell = cells[path[i].x][path[i].y];
+			if (currCell.isPath()||currCell.isStartEnd())
+				currCell.changeType("free");
+		}
+		for (i = 0; i < open.length; i++) {
+			var currCell = cells[open[i].x][open[i].y];
+			if (currCell.isPath())
+				currCell.changeType("free");
 		}
 	}
 }
 
 function MapDraw() {
 	ClearMap();
-	for (var i = 0; i < cells.length; i += 1) //x - j, y -i
+	for (var i = 0; i < cells.length; i += 1)
 		for (var j = 0; j < cells[i].length; j += 1) {
 			if (gridEn)
 				ctx.strokeRect(XDist + 0.5 /* Аутизм */ + j * SqSize, YDist + 0.5 + i * SqSize, SqSize, SqSize);
@@ -170,29 +180,53 @@ function MapDraw() {
 		}
 }
 
-function pathDrowTik (path, i) {
+function pathDrawTik (path, i) {
 	cells[currPath[i].x][currPath[i].y].changeType("path");
 }
 
+function pathDraw() {
+	var i = 0; 
+	if (currPath.length>1) {
+		var inter = setInterval(function () {
+			pathDrawTik(currPath,i);
+			ctx.lineTo(otnToAbsX(currPath[i].y)-SqSize/2,otnToAbsY(currPath[i].x)-SqSize/2);
+			ctx.stroke();
+			if ((i+=1)==currPath.length-1) {
+				clearInterval(inter);
+				ctx.lineTo(otnToAbsX(currPath[i].y)-SqSize/2,otnToAbsY(currPath[i].x)-SqSize/2);
+				ctx.stroke();
+			}
+		}, 10);
+	}
+}
+
 function AStarDraw(SelectedStart, SelectedEnd) {
+	visitedCells = false;
 	var graph = new Graph(map);
 	var start = graph.grid[SelectedStart.x][SelectedStart.y];
 	var end = graph.grid[SelectedEnd.x][SelectedEnd.y];
 	currPath = astar.search(graph, start, end);
-	var i = 0;
-	if (currPath.length>1) {
-		var inter = setInterval(function () {
-			pathDrowTik(currPath,i);
-			if ((i+=1)==currPath.length-1) clearInterval(inter); 
-		}, 15);
-	}
-	console.log(currPath);
 	ctx.beginPath();
-	// for (var p=1; p <= currPath.length - 1; p++) {
-	// 	ctx.moveTo(otnToAbsX(currPath[p-1].y)-SqSize/2,otnToAbsY(currPath[p-1].x)-SqSize/2);
-	// 	ctx.lineTo(otnToAbsX(currPath[p].y)-SqSize/2,otnToAbsY(currPath[p].x)-SqSize/2);
-	// 	ctx.stroke();
-	// };
+	ctx.moveTo(otnToAbsX(SelectedStart.y)-SqSize/2,otnToAbsY(SelectedStart.x)-SqSize/2);
+	//ctx.lineTo(otnToAbsX(currPath[i].y)-SqSize/2,otnToAbsY(currPath[i].x)-SqSize/2);
+	ctx.stroke();
+	
+	var p = 0;
+	if (debugEn) {
+		var inter2 = setInterval(function() {
+			if (p<visitedCells.length) {
+		        if (!cells[visitedCells[p].x][visitedCells[p].y].isStartEnd()) {
+		            cells[visitedCells[p].x][visitedCells[p].y].changeType("open");
+		        }
+		        p++;
+		    } else {
+		    	clearInterval(inter2);
+		    	pathDraw();
+		    }
+	    }, 10);
+	} else {
+		pathDraw();
+	}
 }
 
 ///////////////////////////////////////////////////////Object prototype
@@ -222,60 +256,95 @@ cell.prototype.isFree = function () {
 cell.prototype.isStartEnd = function () {
 	return (this.type == "start" || this.type == "end");
 }
-
-
-
-
-/////////////////////////////////////////////////////////////Handlers
-
-canvas.onmousemove = function (event) {
-	var CurrHandlCoord = absToOtn(event.layerX, event.layerY, event.pageX, event.pageY);
-	if (CurrHandlCoord[0]<mapN&&CurrHandlCoord[1]<mapM&&!CoordsEqual(CurrHandlCoord, LastHandlCoord)) {
-		CurrHandlCoord = cells[CurrHandlCoord[0]][CurrHandlCoord[1]];
-		if (!CurrHandlCoord.isWall()) {
-			FILL(colors[currStatus], [CurrHandlCoord.x,CurrHandlCoord.y]);
-			if (LastHandlCoord&&LastHandlCoord[0]<mapN&&LastHandlCoord[1]<mapM) cells[LastHandlCoord[0]][LastHandlCoord[1]].changeType();
-			LastHandlCoord = [CurrHandlCoord.x,CurrHandlCoord.y];
-		} else {
-			if (LastHandlCoord) cells[LastHandlCoord[0]][LastHandlCoord[1]].changeType();
-		}
-	}
+cell.prototype.isPath = function () {
+	return (this.type == "open" || this.type == "path");
 }
 
-canvas.onclick = function (event) {
-	var CurrHandlCoord = absToOtn(event.layerX, event.layerY, event.pageX, event.pageY);
+var CurrHandlCoord = false;
+
+/////////////////////////////////////////////////////////////Handlers
+function FILL2(color, x, y) {
+	anim.style.display = "block";
+	anim.style.left = x + 1+ "px";
+	anim.style.top = y + 1 + "px";
+	anim.height = SqSize-1;
+	anim.width = SqSize-1;
+	ctx2.fillStyle = color;
+	ctx2.fillRect(0, 0, anim.height, anim.height);
+}
+
+
+canvas.onmousemove = function (event) {
+	CurrHandlCoord = absToOtn(event.layerX, event.layerY, event.pageX, event.pageY);
 	var PageX = CurrHandlCoord[2];
 	var PageY = CurrHandlCoord[3];
-	CurrHandlCoord = cells[CurrHandlCoord[0]][CurrHandlCoord[1]];
-	if (currStatus=="selected") {
-		if (!CurrHandlCoord.isWall()) {
-			if (!StartSelect) {
-				pathClear(currPath);
-				SelectedStart = CurrHandlCoord;		
-				SelectedStart.changeType("start",true,PageX,PageY);
-				StartSelect = true;
-			} else {
-				StartSelect = false;
-				SelectedEnd = CurrHandlCoord;
-				SelectedEnd.changeType("end",true,PageX,PageY);
-				AStarDraw(SelectedStart, SelectedEnd);
-			}
+	if (CurrHandlCoord[0]<mapN&&CurrHandlCoord[1]<mapM&&!CoordsEqual(CurrHandlCoord, LastHandlCoord)) {
+		var _CurrHandlCoord = cells[CurrHandlCoord[0]][CurrHandlCoord[1]];
+		if (!_CurrHandlCoord.isWall()) {
+			FILL2(colors[currStatus], PageX, PageY);
+		} else {
+			if (LastHandlCoord) {cells[LastHandlCoord[0]][LastHandlCoord[1]].changeType();anim.style.display = "none";};
 		}
-	} else {
-		if (!CurrHandlCoord.isStartEnd()) { //TODO: onclick + onmousemove
-			if (CurrHandlCoord.isFree()) {
-				CurrHandlCoord.changeType("wall",true,PageX,PageY);
-				map[CurrHandlCoord.x][CurrHandlCoord.y] = 0;
-			} else {
-				if (CurrHandlCoord.isWall()) {
-					CurrHandlCoord.changeType("free",true,PageX,PageY);
-					map[CurrHandlCoord.x][CurrHandlCoord.y] = 1;
+		if (currStatus=="wall"&&wallPressed) {
+			if (!_CurrHandlCoord.isStartEnd()) { //TODO: onclick + onmousemove
+				if (_CurrHandlCoord.isWall()) {
+					_CurrHandlCoord.changeType("free",true,PageX,PageY);
+					map[_CurrHandlCoord.x][_CurrHandlCoord.y] = 1;
+				} else {
+					_CurrHandlCoord.changeType("wall",true,PageX,PageY);
+					map[_CurrHandlCoord.x][_CurrHandlCoord.y] = 0;
 				}
 			}
 		}
+		LastHandlCoord = CurrHandlCoord;
 	}
 }
 
+for (var i in ["#map","#anim"]) {
+	$(["#map","#anim"][i]).click(
+		function (event) {
+			var _CurrHandlCoord = cells[CurrHandlCoord[0]][CurrHandlCoord[1]];
+			var PageX = CurrHandlCoord[2];
+			var PageY = CurrHandlCoord[3];
+			if (currStatus=="selected") {
+				if (!_CurrHandlCoord.isWall()) {
+					if (!StartSelect) {
+						pathClear(currPath,visitedCells);
+						SelectedStart = _CurrHandlCoord;		
+						SelectedStart.changeType("start",true,PageX,PageY);
+						StartSelect = true;
+					} else {
+						StartSelect = false;
+						SelectedEnd = _CurrHandlCoord;
+						SelectedEnd.changeType("end",true,PageX,PageY);
+						AStarDraw(SelectedStart, SelectedEnd);
+					}
+				}
+			} else {
+				if (!_CurrHandlCoord.isStartEnd()) { //TODO: onclick + onmousemove
+					if (_CurrHandlCoord.isWall()) {
+							_CurrHandlCoord.changeType("free",true,PageX,PageY);
+							map[_CurrHandlCoord.x][_CurrHandlCoord.y] = 1;
+						} else {
+							_CurrHandlCoord.changeType("wall",true,PageX,PageY);
+							map[_CurrHandlCoord.x][_CurrHandlCoord.y] = 0;
+					}
+				}
+			}
+		}
+	)
+	$(["#map","#anim"][i]).mousedown(
+		function (event) {
+			if (currStatus=="wall")
+				wallPressed = true;
+		}
+	)
+	$(["#map","#anim"][i]).mouseup(
+		function (event) {
+			wallPressed = false;
+		}
+	)
+}
 wallbutt.onchange = function (event) {
 	currStatus = "wall";
 }
@@ -283,6 +352,10 @@ wallbutt.onchange = function (event) {
 checkGrid.onchange = function (event) {
 	gridEn = !gridEn;
 	generateMap(false, true);
+}
+
+checkDebug.onchange = function (event) {
+	debugEn = !debugEn;
 }
 
 pathbutt.onchange = function (event) {
@@ -293,12 +366,17 @@ redrawButt.onclick = function (event) {
 	generateMap(false, true);
 }
 
+for (var i in edits) {
+	$(edits[i]).keydown(
+		function(key) {
+			var enterKey = 13;
+			if (key.which == enterKey)
+				generateMap(false, true);
+		}
+	)
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
 
 
 generateMap(false, true);
