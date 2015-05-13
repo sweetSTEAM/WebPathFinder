@@ -301,7 +301,7 @@ canvas.onmousemove = function (event) {
 }
 
 for (var i in ["#map","#anim"]) {
-	$(["#map","#anim"][i]).click(
+	$(["#map","#anim"][i]).mousedown(
 		function (event) {
 			var _CurrHandlCoord = cells[CurrHandlCoord[0]][CurrHandlCoord[1]];
 			var PageX = CurrHandlCoord[2];
@@ -321,22 +321,17 @@ for (var i in ["#map","#anim"]) {
 					}
 				}
 			} else {
+				wallPressed = true;
 				if (!_CurrHandlCoord.isStartEnd()) { //TODO: onclick + onmousemove
 					if (_CurrHandlCoord.isWall()) {
-							_CurrHandlCoord.changeType("free",true,PageX,PageY);
-							map[_CurrHandlCoord.x][_CurrHandlCoord.y] = 1;
-						} else {
-							_CurrHandlCoord.changeType("wall",true,PageX,PageY);
-							map[_CurrHandlCoord.x][_CurrHandlCoord.y] = 0;
+						_CurrHandlCoord.changeType("free",true,PageX,PageY);
+						map[_CurrHandlCoord.x][_CurrHandlCoord.y] = 1;
+					} else {
+						_CurrHandlCoord.changeType("wall",true,PageX,PageY);
+						map[_CurrHandlCoord.x][_CurrHandlCoord.y] = 0;
 					}
 				}
 			}
-		}
-	)
-	$(["#map","#anim"][i]).mousedown(
-		function (event) {
-			if (currStatus=="wall")
-				wallPressed = true;
 		}
 	)
 	$(["#map","#anim"][i]).mouseup(
