@@ -27,7 +27,7 @@ var mapN = Math.floor(docHeight/SqSize)-1;
 var mapM = Math.floor(docWidth/SqSize)-1;
 var cells = [];
 var LastHandlCoord = false;
-var colors = { "free": "#FFFFFF", "wall": "#505050", "start": "#B00000", "end": "#B00000", "path" : "#2A52BE", "open": "#6495ED", "selected": "red" };
+var colors = { "free": "#FFFFFF", "wall": "#505050", "start": "#B00000", "end": "#B00000", "path" : "#E51A4C", "open": "#6495ED", "selected": "red" };
 var SelectedStart = false;
 var SelectedEnd = false;
 var StartSelect = false;
@@ -127,6 +127,7 @@ function FILLanim(color, x, y) {
 		anim.width = SqSize+i*2;
 		ctx2.fillStyle = color;
 		ctx2.fillRect(0, 0, anim.height, anim.height);
+		ctx2.strokeRect(0, 0, anim.height, anim.height);
 		if (!(i-=1)) {anim.style.display = "none"; clearInterval(inter);}
 	}, 20);
 	// ctx2.fillRect(x, y, gridEn ? SqSize - 1: SqSize, gridEn ? SqSize - 1: SqSize);
@@ -283,7 +284,7 @@ canvas.onmousemove = function (event) {
 		if (!_CurrHandlCoord.isWall()) {
 			FILL2(colors[currStatus], PageX, PageY);
 		} else {
-			if (LastHandlCoord) {cells[LastHandlCoord[0]][LastHandlCoord[1]].changeType();anim.style.display = "none";};
+			if (LastHandlCoord) {anim.style.display = "none";};
 		}
 		if (currStatus=="wall"&&wallPressed) {
 			if (!_CurrHandlCoord.isStartEnd()) { //TODO: onclick + onmousemove
