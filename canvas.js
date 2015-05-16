@@ -17,59 +17,56 @@ ctx2.fillStyle = "#000000";
 ctx2.fillRect(0, 0, anim.width, anim.height);
 var docHeight = $(document).height()-$("#navbar").height();
 var docWidth = $(document).width();
-ctx.lineWidth = 1;
 var XDist = 1;
 var YDist = 21;
 var SqSize = 30;
 var map = [];
-var wall_percent = 0.125;
+var wallPercent = 0.125;
 var mapN = Math.floor(docHeight/SqSize)-1;
 var mapM = Math.floor(docWidth/SqSize)-1;
-var cells = [];
+var map = [];
 var LastHandlCoord = false;
 var colors = { "free": "#FFFFFF", "wall": "#505050", "start": "#B00000", "end": "#B00000", "path" : "#E51A4C", "open": "#6495ED", "selected": "red" };
 var SelectedStart = false;
 var SelectedEnd = false;
 var StartSelect = false;
-var cells = [];
+var map = [];
 var currPath = false;
 var currStatus = "selected";
 var gridEn = true;
 var visitedCells = false;
 var debugEn = false;
 var wallPressed = false;
-canvas.width = XDist + SqSize * mapM + ctx.lineWidth;
-canvas.height = YDist + SqSize * mapN + ctx.lineWidth;
+canvas.width = XDist + SqSize * mapM + 1;
+canvas.height = YDist + SqSize * mapN + 1;
 
 rowEdit.value = mapN;
 columnEdit.value = mapM;
 SqSizeEdit.value = SqSize;
-WallEdit.value = wall_percent*100;
+WallEdit.value = wallPercent*100;
 
 function generateMap(randPath, randWall) {
+	ctx.lineWidth = 1;
 	visitedCells = false;
 	currPath = false;
 	mapN = parseInt(rowEdit.value) > 0 ? parseInt(rowEdit.value): mapN;
 	mapM = parseInt(columnEdit.value) > 0 ? parseInt(columnEdit.value): mapM;
 	SqSize = parseFloat(SqSizeEdit.value) > 0 ? parseFloat(SqSizeEdit.value): SqSize;
-	wall_percent = parseInt(WallEdit.value) >= 0 ? WallEdit.value/100: wall_percent;
-	canvas.width = XDist + SqSize * mapM + ctx.lineWidth;
-	canvas.height = YDist + SqSize * mapN + ctx.lineWidth;
+	wallPercent = parseInt(WallEdit.value) >= 0 ? WallEdit.value/100: wallPercent;
+	canvas.width = XDist + SqSize * mapM + 1;
+	canvas.height = YDist + SqSize * mapN + 1;
 	ClearMap();
 	map = [];
-	cells = [];
 	for (var i = 0; i < mapN; i++) {
-		cells.push([]);   			 
-		map.push([]);     			  
+		map.push([]);   			      			  
 		for (var j = 0; j < mapM; j++) {
-			cells[i][j] = new cell(i, j, "free");
-			map[i][j] = 1;
+			map[i][j] = new cell(i, j, "free");
 		}
 	}
 
 	if (randPath) {
-		SelectedStart = cells[getRandomInt(0, mapN - 1)][getRandomInt(0, mapM - 1)];
-		SelectedEnd = cells[getRandomInt(0, mapN - 1)][getRandomInt(0, mapM - 1)];
+		SelectedStart = map[getRandomInt(0, mapN - 1)][getRandomInt(0, mapM - 1)];
+		SelectedEnd = map[getRandomInt(0, mapN - 1)][getRandomInt(0, mapM - 1)];
 		SelectedStart.changeType("start")
 		SelectedEnd.changeType("end");
 	}
@@ -77,12 +74,10 @@ function generateMap(randPath, randWall) {
 	if (randWall) {
 		for (var i = 0; i < mapN; i++) {
 			for (var j = 0; j < mapM; j++) {
-				if ((Math.random() < wall_percent) && !(cells[i][j].isStartEnd())) {
-					map[i][j] = 0;
-					cells[i][j].changeType("wall");
+				if ((Math.random() < wallPercent) && !(map[i][j].isStartEnd())) {
+					map[i][j].changeType("wall");
 				} else {
-					map[i][j] = 1;
-					if (!cells[i][j].isStartEnd()) cells[i][j].changeType("free");
+					if (!map[i][j].isStartEnd()) map[i][j].changeType("free");
 				}
 			}
 		}
@@ -113,6 +108,7 @@ function FILL(color, coords) {
 	var x = XDist + 1 + coords[1] * SqSize;
 	var y = YDist + 1 + coords[0] * SqSize;
 	ctx.fillRect(x, y, gridEn ? SqSize - 1: SqSize, gridEn ? SqSize - 1: SqSize);
+	if (gridEn) {ctx.strokeStyle="#000000";ctx.strokeRect(x-0.5, y-0.5, SqSize, SqSize);}
 }
 
 function FILLanim(color, x, y) {
@@ -130,8 +126,6 @@ function FILLanim(color, x, y) {
 		ctx2.strokeRect(0, 0, anim.height, anim.height);
 		if (!(i-=1)) {anim.style.display = "none"; clearInterval(inter);}
 	}, 20);
-	// ctx2.fillRect(x, y, gridEn ? SqSize - 1: SqSize, gridEn ? SqSize - 1: SqSize);
-	// if (gridEn) ctx2.strokeRect(x - 0.5, y - 0.5, SqSize, SqSize);
 }
 
 function div(val, by) {
@@ -156,16 +150,23 @@ function otnToAbsY(i) {
 
 function pathClear(path,open) {
 	if (path) {
-		if (SelectedStart)
+		if (SelectedStart) {
 			SelectedStart.changeType("free");
+			if (map[SelectedStart.i-1]&&map[SelectedStart.i-1][SelectedStart.j])
+					map[SelectedStart.i-1][SelectedStart.j].changeType();
+			SelectedEnd.changeType("free");
+		}
 		for (var i = 0; i < path.length; i++) {
-			var currCell = cells[path[i].x][path[i].y];
-			if (currCell.isPath()||currCell.isStartEnd())
+			var currCell = path[i];
+			if (currCell.isPath()||currCell.isStartEnd()) {
 				currCell.changeType("free");
+				if (map[currCell.i-1]&&map[currCell.i-1][currCell.j])
+					map[currCell.i-1][currCell.j].changeType();
+			}
 		}
 		for (i = 0; i < open.length; i++) {
-			var currCell = cells[open[i].x][open[i].y];
-			if (currCell.isPath())
+			var currCell = map[open[i].i][open[i].j];
+			if (currCell.isOpen())
 				currCell.changeType("free");
 		}
 	}
@@ -173,51 +174,43 @@ function pathClear(path,open) {
 
 function MapDraw() {
 	ClearMap();
-	for (var i = 0; i < cells.length; i += 1)
-		for (var j = 0; j < cells[i].length; j += 1) {
+	for (var i = 0; i < map.length; i += 1)
+		for (var j = 0; j < map[i].length; j += 1) {
 			if (gridEn)
 				ctx.strokeRect(XDist + 0.5 /* Аутизм */ + j * SqSize, YDist + 0.5 + i * SqSize, SqSize, SqSize);
-			cells[i][j].changeType();
+			map[i][j].changeType();
 		}
 }
 
-function pathDrawTik (path, i) {
-	cells[currPath[i].x][currPath[i].y].changeType("path");
-}
-
 function pathDraw() {
+	ctx.beginPath();
+	ctx.moveTo(otnToAbsX(SelectedStart.j)-SqSize/2,otnToAbsY(SelectedStart.i)-SqSize/2);
 	var i = 0; 
 	if (currPath.length>1) {
 		var inter = setInterval(function () {
-			pathDrawTik(currPath,i);
-			ctx.lineTo(otnToAbsX(currPath[i].y)-SqSize/2,otnToAbsY(currPath[i].x)-SqSize/2);
+			currPath[i].changeType("path");
+			ctx.lineWidth = 1.5;
+			ctx.lineTo(otnToAbsX(currPath[i].j)-SqSize/2,otnToAbsY(currPath[i].i)-SqSize/2);
+			ctx.strokeStyle = colors["path"];
 			ctx.stroke();
-			if ((i+=1)==currPath.length-1) {
-				clearInterval(inter);
-				ctx.lineTo(otnToAbsX(currPath[i].y)-SqSize/2,otnToAbsY(currPath[i].x)-SqSize/2);
-				ctx.stroke();
-			}
+			ctx.lineWidth = 1;
+			if (i==currPath.length-1) clearInterval(inter);
+			i++;
 		}, 10);
 	}
 }
 
 function AStarDraw(SelectedStart, SelectedEnd) {
 	visitedCells = false;
-	var graph = new Graph(map);
-	var start = graph.grid[SelectedStart.x][SelectedStart.y];
-	var end = graph.grid[SelectedEnd.x][SelectedEnd.y];
-	currPath = astar.search(graph, start, end);
-	ctx.beginPath();
-	ctx.moveTo(otnToAbsX(SelectedStart.y)-SqSize/2,otnToAbsY(SelectedStart.x)-SqSize/2);
-	//ctx.lineTo(otnToAbsX(currPath[i].y)-SqSize/2,otnToAbsY(currPath[i].x)-SqSize/2);
-	ctx.stroke();
+	currPath = astar.search(map, SelectedStart, SelectedEnd, [true]);
+	
 	
 	var p = 0;
 	if (debugEn) {
 		var inter2 = setInterval(function() {
 			if (p<visitedCells.length) {
-		        if (!cells[visitedCells[p].x][visitedCells[p].y].isStartEnd()) {
-		            cells[visitedCells[p].x][visitedCells[p].y].changeType("open");
+		        if (!visitedCells[p].isStartEnd()) {
+		           visitedCells[p].changeType("open");
 		        }
 		        p++;
 		    } else {
@@ -230,22 +223,32 @@ function AStarDraw(SelectedStart, SelectedEnd) {
 	}
 }
 
-///////////////////////////////////////////////////////Object prototype
+///////////////////////////////////////////////////////Cell prototype
 
 function cell(x, y, type) {
-	this.x = x;
-	this.y = y;
+	//init
+	this.i = x;
+	this.j = y;
 	this.type = type || "free";
+	this.f = 0;
+    this.g = 0;
+    this.h = 0;
+    this.debug = "";
+    this.parent = null;
 }
 
 cell.prototype.changeType = function (type,anim,PageX,PageY) {
 	this.type = type || this.type;
 	if (anim) {
 		FILLanim(colors[this.type], PageX, PageY);
-		FILL(colors[this.type], [this.x, this.y]);
+		FILL(colors[this.type], [this.i, this.j]);
 	}
 	else
-		FILL(colors[this.type], [this.x, this.y]);
+		if (!this.isPath()) FILL(colors[this.type], [this.i, this.j]);
+}
+
+cell.prototype.coords = function () {
+	return [this.i,this.j];
 }
 
 cell.prototype.isWall = function () {
@@ -257,16 +260,23 @@ cell.prototype.isFree = function () {
 cell.prototype.isStartEnd = function () {
 	return (this.type == "start" || this.type == "end");
 }
-cell.prototype.isPath = function () {
-	return (this.type == "open" || this.type == "path");
+cell.prototype.isEnd = function () {
+	return (this.type == "end");
 }
+cell.prototype.isPath = function () {
+	return (this.type == "path");
+}
+cell.prototype.isOpen = function () {
+	return (this.type == "open");
+}
+
 
 var CurrHandlCoord = false;
 
 /////////////////////////////////////////////////////////////Handlers
 function FILL2(color, x, y) {
 	anim.style.display = "block";
-	anim.style.left = x + 1+ "px";
+	anim.style.left = x + 1 + "px";
 	anim.style.top = y + 1 + "px";
 	anim.height = SqSize-1;
 	anim.width = SqSize-1;
@@ -280,7 +290,8 @@ canvas.onmousemove = function (event) {
 	var PageX = CurrHandlCoord[2];
 	var PageY = CurrHandlCoord[3];
 	if (CurrHandlCoord[0]<mapN&&CurrHandlCoord[1]<mapM&&!CoordsEqual(CurrHandlCoord, LastHandlCoord)) {
-		var _CurrHandlCoord = cells[CurrHandlCoord[0]][CurrHandlCoord[1]];
+		var _CurrHandlCoord = map[CurrHandlCoord[0]][CurrHandlCoord[1]];
+
 		if (!_CurrHandlCoord.isWall()) {
 			FILL2(colors[currStatus], PageX, PageY);
 		} else {
@@ -290,10 +301,8 @@ canvas.onmousemove = function (event) {
 			if (!_CurrHandlCoord.isStartEnd()) { //TODO: onclick + onmousemove
 				if (_CurrHandlCoord.isWall()) {
 					_CurrHandlCoord.changeType("free",true,PageX,PageY);
-					map[_CurrHandlCoord.x][_CurrHandlCoord.y] = 1;
 				} else {
 					_CurrHandlCoord.changeType("wall",true,PageX,PageY);
-					map[_CurrHandlCoord.x][_CurrHandlCoord.y] = 0;
 				}
 			}
 		}
@@ -304,7 +313,7 @@ canvas.onmousemove = function (event) {
 for (var i in ["#map","#anim"]) {
 	$(["#map","#anim"][i]).mousedown(
 		function (event) {
-			var _CurrHandlCoord = cells[CurrHandlCoord[0]][CurrHandlCoord[1]];
+			var _CurrHandlCoord = map[CurrHandlCoord[0]][CurrHandlCoord[1]];
 			var PageX = CurrHandlCoord[2];
 			var PageY = CurrHandlCoord[3];
 			if (currStatus=="selected") {
@@ -326,10 +335,8 @@ for (var i in ["#map","#anim"]) {
 				if (!_CurrHandlCoord.isStartEnd()) { //TODO: onclick + onmousemove
 					if (_CurrHandlCoord.isWall()) {
 						_CurrHandlCoord.changeType("free",true,PageX,PageY);
-						map[_CurrHandlCoord.x][_CurrHandlCoord.y] = 1;
 					} else {
 						_CurrHandlCoord.changeType("wall",true,PageX,PageY);
-						map[_CurrHandlCoord.x][_CurrHandlCoord.y] = 0;
 					}
 				}
 			}
