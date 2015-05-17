@@ -14,22 +14,25 @@ var astar = {
         var options = options || [true]; 
         this.diagonal = options[0];
         astar.ClearParams(map); //If map wasn't regenerated, all params will remain from previous search
+        if (debugEn) visitedCells = [];
         var openList  = [],
             closedList = [];
+
+        var startTime = (new Date()).getTime();
+
         openList.push(start);
-        if (debugEn) visitedCells = [];
         while (openList.length) {
  
-            // Find cell fith lowest f || may be sort?
-            var lowInd = 0;
+            //Find cell with lowest f || may be sort? || binary heap
+            var min = 0;
             for(var i=0; i<openList.length; i++) {
-                if(openList[i].f < openList[lowInd].f) { lowInd = i; }
+                if(openList[i].f < openList[min].f) { min = i; }
             }
-            var currentCell = openList[lowInd];
+            var currentCell = openList[min];
 
             if (debugEn) visitedCells.push(currentCell);
 
-            // If result has been found, return the traced path
+            //If result has been found, return the traced path
             if (CoordsEqual(currentCell.coords(),end.coords())) {
                 var curr = currentCell;
                 var path = [];
@@ -37,10 +40,12 @@ var astar = {
                     path.push(curr);
                     curr = curr.parent;
                 }
-                return path.reverse();
+                var endTime = (new Date()).getTime();
+                console.log(endTime-startTime);
+                return [path.reverse(),endTime-startTime,currentCell.g];
             }
  
-            //Move current cell from open to closed list, check neighbours
+            //Move curr cell from open to closed list, check neighbours
             openList = this.removeCell(openList,currentCell); //sort for pop?
             closedList.push(currentCell);
             var neighbours = this.neighbours(map, currentCell);
@@ -52,35 +57,35 @@ var astar = {
                     continue;
                 }
  
-                // g score is the shortest distance from start to current node, we need to check if
+                // g score is the shortest distance from start to current cell, we need to check if
                 //   the path we have arrived at this neighbour is the shortest one we have seen yet
-                var gScore = this.getG(neighbour,currentCell); // 1 is the distance from a node to it's neighbour
+                var gScore = this.getG(neighbour,currentCell); // 1 is the distance from a cell to it's neighbour
                 //var gScoreIsBest = false;
  
  
                 if(!this.CellInList(openList,neighbour)) {
-                    // This the the first time we have arrived at this node, it must be the best
+                    // This the the first time we have arrived at this cell, it must be the best
                     // Also, we need to take the h (heuristic) score since we haven't done so yet
                     neighbour.h = astar.heuristic(neighbour, end);
                     openList.push(neighbour);
                 }
                 else if(gScore > neighbour.g) {
-                    // We have already seen the node and last time it had a less g and we do nothing
+                    // We have already seen the cell and last time it had a less g and we do nothing
                     continue;
                 }
 
-                // Found an optimal (so far) path to this node.  Store info on how we got here and
+                // Found an optimal (so far) path to this cell.  Store info on how we got here and
                 //  just how good it really is...
                 this.setNewParent(neighbour,currentCell,gScore);
             }
         }
  
         // No path was found, empty array signifies failure to find path
-        return [];
+        var endTime = (new Date()).getTime();
+        return [[],endTime-startTime,0];
     },
     getG: function (cell, parent) {
         return (parent.g + Math.sqrt(Math.abs(cell.i-parent.i)+Math.abs(cell.j-parent.j)));
-        //if (abs(cell.i-parent.i)+abs(cell.j-parent.j)>1)
     },
     setNewParent: function(cell, parent, G) {
         cell.parent = parent;

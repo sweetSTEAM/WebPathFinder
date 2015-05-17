@@ -37,17 +37,27 @@ var gridEn = true;
 var visitedCells = false;
 var debugEn = false;
 var wallPressed = false;
+var inter = false;
+var inter2 = false;
 canvas.width = XDist + SqSize * mapM + 1;
 canvas.height = YDist + SqSize * mapN + 1;
-
 rowEdit.value = mapN;
 columnEdit.value = mapM;
 SqSizeEdit.value = SqSize;
 WallEdit.value = wallPercent*100;
 
-function generateMap(randPath, randWall) {
-	ctx.lineWidth = 1;
+function redefParams() {
+	if (inter) {
+		clearInterval(inter);
+	}
+	if (inter2) {
+		clearInterval(inter2);
+	}
+	SelectedStart = false;
+	SelectedEnd = false;
+	StartSelect = false;
 	visitedCells = false;
+	LastHandlCoord = false;
 	currPath = false;
 	mapN = parseInt(rowEdit.value) > 0 ? parseInt(rowEdit.value): mapN;
 	mapM = parseInt(columnEdit.value) > 0 ? parseInt(columnEdit.value): mapM;
@@ -55,8 +65,14 @@ function generateMap(randPath, randWall) {
 	wallPercent = parseInt(WallEdit.value) >= 0 ? WallEdit.value/100: wallPercent;
 	canvas.width = XDist + SqSize * mapM + 1;
 	canvas.height = YDist + SqSize * mapN + 1;
-	ClearMap();
 	map = [];
+	anim.style.display = "none";
+}
+
+function generateMap(randPath, randWall) {
+	redefParams();
+	ClearMap();
+	
 	for (var i = 0; i < mapN; i++) {
 		map.push([]);   			      			  
 		for (var j = 0; j < mapM; j++) {
@@ -115,7 +131,7 @@ function FILLanim(color, x, y) {
 
 	ctx2.fillStyle = color;
 	var i = 6;
-	var inter = setInterval(function () {
+	var inter_loc = setInterval(function () {
 		anim.style.display = "block";
 		anim.style.left = x-i + "px";
 		anim.style.top = y-i + "px";
@@ -124,7 +140,7 @@ function FILLanim(color, x, y) {
 		ctx2.fillStyle = color;
 		ctx2.fillRect(0, 0, anim.height, anim.height);
 		ctx2.strokeRect(0, 0, anim.height, anim.height);
-		if (!(i-=1)) {anim.style.display = "none"; clearInterval(inter);}
+		if (!(i-=1)) {anim.style.display = "none"; clearInterval(inter_loc);}
 	}, 20);
 }
 
@@ -149,6 +165,13 @@ function otnToAbsY(i) {
 }
 
 function pathClear(path,open) {
+	if (inter) {
+		clearInterval(inter);
+	}
+	if (inter2) {
+		clearInterval(inter2);
+	}
+	
 	if (path) {
 		if (SelectedStart) {
 			SelectedStart.changeType("free");
@@ -172,6 +195,7 @@ function pathClear(path,open) {
 	}
 }
 
+
 function MapDraw() {
 	ClearMap();
 	for (var i = 0; i < map.length; i += 1)
@@ -182,12 +206,12 @@ function MapDraw() {
 		}
 }
 
-function pathDraw() {
+function pathDraw(currPath,timePath,pathLength) {
 	ctx.beginPath();
 	ctx.moveTo(otnToAbsX(SelectedStart.j)-SqSize/2,otnToAbsY(SelectedStart.i)-SqSize/2);
 	var i = 0; 
 	if (currPath.length>1) {
-		var inter = setInterval(function () {
+		inter = setInterval(function () {
 			currPath[i].changeType("path");
 			ctx.lineWidth = 1.5;
 			ctx.lineTo(otnToAbsX(currPath[i].j)-SqSize/2,otnToAbsY(currPath[i].i)-SqSize/2);
@@ -198,16 +222,19 @@ function pathDraw() {
 			i++;
 		}, 10);
 	}
+	$('#myModal').modal('show');
+	$('#resultWin').html('<p>Time: ' + timePath + ' ms</p><p>Length: ' + pathLength);
 }
 
 function AStarDraw(SelectedStart, SelectedEnd) {
 	visitedCells = false;
-	currPath = astar.search(map, SelectedStart, SelectedEnd, [true]);
-	
-	
+	var result = astar.search(map, SelectedStart, SelectedEnd, [true]);
+	currPath = result[0];
+	var timePath = result[1];
+	var pathLength = result[2];
 	var p = 0;
 	if (debugEn) {
-		var inter2 = setInterval(function() {
+		inter2 = setInterval(function() {
 			if (p<visitedCells.length) {
 		        if (!visitedCells[p].isStartEnd()) {
 		           visitedCells[p].changeType("open");
@@ -215,11 +242,11 @@ function AStarDraw(SelectedStart, SelectedEnd) {
 		        p++;
 		    } else {
 		    	clearInterval(inter2);
-		    	pathDraw();
+		    	pathDraw(currPath,timePath,pathLength);
 		    }
-	    }, 10);
+	    }, 1);
 	} else {
-		pathDraw();
+		pathDraw(currPath,timePath,pathLength);
 	}
 }
 
