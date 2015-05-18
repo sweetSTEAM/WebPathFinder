@@ -11,35 +11,35 @@
     <body>
         <nav class="navbar navbar-default navbar-fixed-bottom" id="navbar">
           <div class="container-fluid">
-             <ul class="nav navbar-nav navbar-left">
-                <div class="navbar-header">
-                    <a class="navbar-brand" href="#">WebPathFinder</a>
-                </div>
+            <div class="navbar-header">
+              <a class="navbar-brand" href="#">WebPathFinder</a>
+            </div>
 
-                <li><button id="red" type="button" class="btn btn-primary navbar-btn">Info</button></li>
-                    <div class="col-xs-1 navbar-btn">
+            <form class="navbar-form navbar-left" role="form">
+                <div class="row">
+                    <div class="col-xs-2">
                         <div class="input-group">
                             <span class="input-group-addon">Rows</span>
                             <input id="rowEdit" type="text" class="form-control" placeholder="Row">
                         </div>
                     </div>
 
-                     <div class="col-xs-1 navbar-btn">
+                     <div class="col-xs-2">
                         <div class="input-group">
                             <span class="input-group-addon">Col</span>
                             <input id="columnEdit" type="text" class="form-control" placeholder="Columns">
                         </div>
                     </div>
 
-                    <div class="col-xs-1 navbar-btn">
+                    <div class="col-xs-2">
                         <div class="input-group">
                             <span class="input-group-addon">Grid</span>
                             <input id="SqSizeEdit" type="text" class="form-control" placeholder="Columns">
                         </div>
                     </div>
 
-                    <div class="col-xs-1 navbar-btn" id="WallGroup">
-                        <div class="input-group" >
+                    <div class="col-xs-2">
+                        <div class="input-group">
                             <span class="input-group-addon">Wall</span>
                             <input id="WallEdit" type="text" class="form-control" placeholder="Wall">
                             <span class="input-group-addon">%</span>
@@ -65,16 +65,14 @@
                         <input id="checkDebug" type="checkbox" autocomplete="off">Debug
                       </label>
                     </div>
-                    <div class="btn-group"><button id="redrawButt" type="button" class="btn btn-primary navbar-btn">Redraw map</button></div>
-                    
-                    </ul>
                 </div>
-            
+            </form>
  
             
             <ul class="nav navbar-nav navbar-right container-fluid">
-                
+                <li><button id="redrawButt" type="button" class="btn btn-primary navbar-btn">Redraw map</button></li>
             </ul>
+          </div>
         </nav>
 
         <!-- Modal -->

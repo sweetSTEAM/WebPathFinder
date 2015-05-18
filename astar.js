@@ -41,6 +41,7 @@ var astar = {
                     curr = curr.parent;
                 }
                 var endTime = (new Date()).getTime();
+                console.log(endTime-startTime);
                 return [path.reverse(),endTime-startTime,currentCell.g];
             }
  
