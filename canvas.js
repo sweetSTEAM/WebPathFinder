@@ -223,7 +223,11 @@ function pathDraw(currPath,timePath,pathLength) {
 		}, 10);
 	}
 	$('#myModal').modal('show');
-	$('#resultWin').html('<p>Time: ' + timePath + ' ms</p><p>Length: ' + pathLength);
+	if (currPath.length)
+		$('#resultWin').html('<p>Time: ' + timePath + ' ms</p><p>Length: ' + pathLength);
+	else
+		$('#resultWin').html("<p>Couldn't find path</p>");
+	if (debugEn) $('#resultWin').append('<p>Cells processed: ' + visitedCells.length + '</p>');
 }
 
 function AStarDraw(SelectedStart, SelectedEnd) {
