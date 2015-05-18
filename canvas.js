@@ -222,12 +222,14 @@ function pathDraw(currPath,timePath,pathLength) {
 			i++;
 		}, 10);
 	}
-	$('#myModal').modal('show');
+
+	
 	if (currPath.length)
-		$('#resultWin').html('<p>Time: ' + timePath + ' ms</p><p>Length: ' + pathLength);
+		$('#infoButt').attr("data-content",('<p>Time: ' + timePath + ' ms</p><p>Length: ' + pathLength));
 	else
 		$('#resultWin').html("<p>Couldn't find path</p>");
 	if (debugEn) $('#resultWin').append('<p>Cells processed: ' + visitedCells.length + '</p>');
+	$('#infoButt').popover("show");
 }
 
 function AStarDraw(SelectedStart, SelectedEnd) {
@@ -340,6 +342,8 @@ canvas.onmousemove = function (event) {
 		LastHandlCoord = CurrHandlCoord;
 	}
 }
+
+$('#infoButt').popover();   
 
 for (var i in ["#map","#anim"]) {
 	$(["#map","#anim"][i]).mousedown(
