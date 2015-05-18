@@ -11,9 +11,10 @@
     <body>
         <nav class="navbar navbar-default navbar-fixed-bottom" id="navbar">
           <div class="container-fluid">
-            <div class="navbar-header">
+            <div class="navbar-header" style="display: inline">
               <a class="navbar-brand" href="#">WebPathFinder</a>
-            </div>
+              <button id="infoButt" data-toggle="popover" data-html="true" data-placement="top" type="button" class="navbar-left navbar-btn btn btn-primary" title="Popover title" data-content="And here's some amazing content. It's very engaging. Right?">Info</button>
+            </div> 
 
             <form class="navbar-form navbar-left" role="form">
                 <div class="row">
@@ -45,7 +46,7 @@
                             <span class="input-group-addon">%</span>
                         </div>
                     </div>
-
+                    
                     <div class="btn-group" data-toggle="buttons">
                         <label class="btn btn-primary active">
                             <input type="radio" name="options" id="pathbutt" autocomplete="off"><img src="pathpoint.png">
@@ -65,13 +66,14 @@
                         <input id="checkDebug" type="checkbox" autocomplete="off">Debug
                       </label>
                     </div>
+                    
                 </div>
+
             </form>
- 
-            
+
             <ul class="nav navbar-nav navbar-right container-fluid">
                 <li><button id="redrawButt" type="button" class="btn btn-primary navbar-btn">Redraw map</button></li>
-            </ul>
+            </ul> 
           </div>
         </nav>
 
