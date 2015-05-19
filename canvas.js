@@ -222,14 +222,37 @@ function pathDraw(currPath,timePath,pathLength) {
 			i++;
 		}, 10);
 	}
-
 	
-	if (currPath.length)
-		$('#infoButt').attr("data-content",('<p>Time: ' + timePath + ' ms</p><p>Length: ' + pathLength));
-	else
-		$('#resultWin').html("<p>Couldn't find path</p>");
-	if (debugEn) $('#resultWin').append('<p>Cells processed: ' + visitedCells.length + '</p>');
-	$('#infoButt').popover("show");
+	if (currPath.length) {
+		$('#infoButt').attr('data-original-title','Algorithm results');
+		$('#infoButt').popover("show"); //Popover should be shown for css changes
+		$('.popover-title').css({'background-color': '#DFF2BF', 'color': '#4F8A10'});
+		
+		var content_text = '<table>\
+								<tr>\
+									<th>Time: </th>\
+									<td>' + timePath + ' ms</td>\
+								</tr>\
+								<tr>\
+									<th>Length:  </th>\
+									<td>' + Math.round(pathLength * 100) / 100 + '</td>\
+								</tr>';
+		
+	} else {
+		var content_text = "Couldn't find a path";
+		$('#infoButt').attr('data-original-title','Error');
+		$('#infoButt').popover("show");
+		$('.popover-title').css({'background-color': '#FFBABA', 'color': '#D8000C'});
+	}
+	if (debugEn) {
+		content_text += '<tr>\
+							<th>Cells processed: </th>\
+							<td>' + visitedCells.length + '</td>\
+						</tr>'
+	};
+
+	$('#infoButt').attr("data-content", content_text);
+	$('#infoButt').popover("show"); //Content update
 }
 
 function AStarDraw(SelectedStart, SelectedEnd) {
