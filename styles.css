@@ -14,3 +14,19 @@ canvas {
    border: 0px solid #FFF;
    display: none;
 }
+
+.popover-title {
+  color: #FFFFFF;
+  border-color: #FFF;
+  background-color: #337ab7;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+th {
+    padding-right:10px;
+}
+
+td {
+
+}
