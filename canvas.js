@@ -69,39 +69,21 @@ function redefParams() {
 	anim.style.display = "none";
 }
 
-function generateMap(randPath, randWall) {
-	redefParams();
+function generateMap(randWall) {
+	$('#infoButt').popover("show");
+	$('.popover-title').html('Drawn the map...');
+	$('.popover-content').html('Please wait');
 	ClearMap();
+	redefParams();
 	
 	for (var i = 0; i < mapN; i++) {
-		map.push([]);   			      			  
+		map.push([]);
 		for (var j = 0; j < mapM; j++) {
 			map[i][j] = new cell(i, j, "free");
+			map[i][j].changeType((Math.random() < wallPercent) ? "wall" : "free"); //random
 		}
 	}
-
-	if (randPath) {
-		SelectedStart = map[getRandomInt(0, mapN - 1)][getRandomInt(0, mapM - 1)];
-		SelectedEnd = map[getRandomInt(0, mapN - 1)][getRandomInt(0, mapM - 1)];
-		SelectedStart.changeType("start")
-		SelectedEnd.changeType("end");
-	}
-
-	if (randWall) {
-		for (var i = 0; i < mapN; i++) {
-			for (var j = 0; j < mapM; j++) {
-				if ((Math.random() < wallPercent) && !(map[i][j].isStartEnd())) {
-					map[i][j].changeType("wall");
-				} else {
-					if (!map[i][j].isStartEnd()) map[i][j].changeType("free");
-				}
-			}
-		}
-	}
-	MapDraw();
-	if (randPath) {
-		AStarDraw(SelectedStart, SelectedEnd);
-	}
+	$('#infoButt').popover("show");
 }
 
 
@@ -195,18 +177,40 @@ function pathClear(path,open) {
 	}
 }
 
+function showInfo (currPath,timePath,pathLength) {
+	var content_text = '<table>\
+								<tr>\
+									<th>Time: </th>\
+									<td>' + timePath + ' ms</td>\
+								</tr>'
+	if (currPath.length) {
+		$('#infoButt').attr('data-original-title','Algorithm results');
+		$('#infoButt').popover("show"); //Popover should be shown for css changes
+		$('.popover-title').css({'background-color': '#DFF2BF', 'color': '#4F8A10'});
+		
+		content_text += '<tr>\
+								<th>Length:  </th>\
+								<td>' + Math.round(pathLength * 100) / 100 + '</td>\
+							</tr>';
+		
+	} else {
+		content_text += "<tr><th colspan='2'>Couldn't find a path</th></tr>";
+		$('#infoButt').attr('data-original-title','Error');
+		$('#infoButt').popover("show");
+		$('.popover-title').css({'background-color': '#FFBABA', 'color': '#D8000C'});
+	}
+	if (debugEn) {
+		content_text += '<tr>\
+							<th>Cells processed: </th>\
+							<td>' + visitedCells.length + '</td>\
+						</tr>'
+	}
 
-function MapDraw() {
-	ClearMap();
-	for (var i = 0; i < map.length; i += 1)
-		for (var j = 0; j < map[i].length; j += 1) {
-			if (gridEn)
-				ctx.strokeRect(XDist + 0.5 /* Аутизм */ + j * SqSize, YDist + 0.5 + i * SqSize, SqSize, SqSize);
-			map[i][j].changeType();
-		}
+	$('#infoButt').attr("data-content", content_text);
+	$('#infoButt').popover("show"); //Content update
 }
 
-function pathDraw(currPath,timePath,pathLength) {
+function pathDraw(currPath) {
 	ctx.beginPath();
 	ctx.moveTo(otnToAbsX(SelectedStart.j)-SqSize/2,otnToAbsY(SelectedStart.i)-SqSize/2);
 	var i = 0; 
@@ -222,46 +226,24 @@ function pathDraw(currPath,timePath,pathLength) {
 			i++;
 		}, 10);
 	}
-	
-	if (currPath.length) {
-		$('#infoButt').attr('data-original-title','Algorithm results');
-		$('#infoButt').popover("show"); //Popover should be shown for css changes
-		$('.popover-title').css({'background-color': '#DFF2BF', 'color': '#4F8A10'});
-		
-		var content_text = '<table>\
-								<tr>\
-									<th>Time: </th>\
-									<td>' + timePath + ' ms</td>\
-								</tr>\
-								<tr>\
-									<th>Length:  </th>\
-									<td>' + Math.round(pathLength * 100) / 100 + '</td>\
-								</tr>';
-		
-	} else {
-		var content_text = "Couldn't find a path";
-		$('#infoButt').attr('data-original-title','Error');
-		$('#infoButt').popover("show");
-		$('.popover-title').css({'background-color': '#FFBABA', 'color': '#D8000C'});
-	}
-	if (debugEn) {
-		content_text += '<tr>\
-							<th>Cells processed: </th>\
-							<td>' + visitedCells.length + '</td>\
-						</tr>'
-	};
-
-	$('#infoButt').attr("data-content", content_text);
-	$('#infoButt').popover("show"); //Content update
 }
 
 function AStarDraw(SelectedStart, SelectedEnd) {
 	visitedCells = false;
-	var result = astar.search(map, SelectedStart, SelectedEnd, [true]);
+	var result = false;
+
+	$('.popover-title').css({'background-color': '#FEEFB3', 'color': '#9F6000'});
+	$('.popover-title').html('PROCESSING...');
+	$('.popover-content').html('Please wait');
+
+	//Search call
+	setTimeout(function () {
+		result = astar.search(map, SelectedStart, SelectedEnd, [true]);
 	currPath = result[0];
 	var timePath = result[1];
 	var pathLength = result[2];
 	var p = 0;
+
 	if (debugEn) {
 		inter2 = setInterval(function() {
 			if (p<visitedCells.length) {
@@ -277,6 +259,10 @@ function AStarDraw(SelectedStart, SelectedEnd) {
 	} else {
 		pathDraw(currPath,timePath,pathLength);
 	}
+
+	showInfo(currPath,timePath,pathLength);
+	},1); 
+	
 }
 
 ///////////////////////////////////////////////////////Cell prototype
@@ -291,6 +277,8 @@ function cell(x, y, type) {
     this.h = 0;
     this.debug = "";
     this.parent = null;
+    this.visited = false;
+    this.closed = false;
 }
 
 cell.prototype.changeType = function (type,anim,PageX,PageY) {
@@ -365,8 +353,10 @@ canvas.onmousemove = function (event) {
 		LastHandlCoord = CurrHandlCoord;
 	}
 }
-
-$('#infoButt').popover();   
+  
+$("#settingsButt").click(function(event) {
+	$("#myModal").modal("show");
+});
 
 for (var i in ["#map","#anim"]) {
 	$(["#map","#anim"][i]).mousedown(
@@ -412,7 +402,7 @@ wallbutt.onchange = function (event) {
 
 checkGrid.onchange = function (event) {
 	gridEn = !gridEn;
-	generateMap(false, true);
+	generateMap(true);
 }
 
 checkDebug.onchange = function (event) {
@@ -424,7 +414,7 @@ pathbutt.onchange = function (event) {
 }
 
 redrawButt.onclick = function (event) {
-	generateMap(false, true);
+	generateMap(true);
 }
 
 for (var i in edits) {
@@ -432,7 +422,7 @@ for (var i in edits) {
 		function(key) {
 			var enterKey = 13;
 			if (key.which == enterKey)
-				generateMap(false, true);
+				generateMap(true);
 		}
 	)
 }
@@ -440,7 +430,7 @@ for (var i in edits) {
 /////////////////////////////////////////////////////////////////////////////////////////
 
 
-generateMap(false, true);
+generateMap(true);
 
 
 
