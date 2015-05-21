@@ -277,6 +277,8 @@ function cell(x, y, type) {
     this.h = 0;
     this.debug = "";
     this.parent = null;
+    this.visited = false;
+    this.closed = false;
 }
 
 cell.prototype.changeType = function (type,anim,PageX,PageY) {
@@ -351,8 +353,10 @@ canvas.onmousemove = function (event) {
 		LastHandlCoord = CurrHandlCoord;
 	}
 }
-
-$('#infoButt').popover();   
+  
+$("#settingsButt").click(function(event) {
+	$("#myModal").modal("show");
+});
 
 for (var i in ["#map","#anim"]) {
 	$(["#map","#anim"][i]).mousedown(
