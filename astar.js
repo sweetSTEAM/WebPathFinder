@@ -3,7 +3,7 @@ var astar = {
         for(var x = 0; x < map.length; x++) {
             for(var y = 0; y < map[x].length; y++) {
                 map[x][y].f = 0;
-                map[x][y].g = 0;
+                map[x][y].g = Infinity;
                 map[x][y].h = 0;
                 //map[x][y].debug = "";
                 map[x][y].parent = null;
@@ -16,6 +16,7 @@ var astar = {
         options = [true, false]; 
         this.diagonal = options[0];
         astar.ClearParams(map); //If map wasn't regenerated, all params will remain from previous search
+        start.g = 0;
         if (debugEn) visitedCells = [];
 
             var openData  = [];
@@ -34,14 +35,9 @@ var astar = {
 
             //If result has been found, return the traced path
             if (CoordsEqual(currentCell.coords(),end.coords())) {
-                var curr = currentCell;
-                var path = [];
-                while(curr.parent) {
-                    path.push(curr);
-                    curr = curr.parent;
-                }
+                var path = this.pathTo(end);
                 var endTime = (new Date()).getTime();
-                return [path.reverse(),endTime-startTime,currentCell.g];
+                return [path,endTime-startTime,currentCell.g];
             }
  
             //Move curr cell from open to closed, check neighbours
@@ -58,24 +54,25 @@ var astar = {
  
                 // g score is the shortest distance from start to current cell, we need to check if
                 //   the path we have arrived at this neighbour is the shortest one we have seen yet
-                var gScore = this.getG(neighbour,currentCell); // 1 is the distance from a cell to it's neighbour
+                var newG = this.getG(neighbour,currentCell); // 1 is the distance from a cell to it's neighbour
  
- 
-                if(!neighbour.visited) {
+                if (neighbour.g > newG) {
                     // This the the first time we have arrived at this cell, it must be the best
                     // Also, we need to take the h (heuristic) score since we haven't done so yet
                     neighbour.h = astar.heuristic(neighbour, end);
-                    openData.push(neighbour);
-                    neighbour.visited = true;
-                }
-                else if(gScore > neighbour.g) {
-                    // We have already seen the cell and last time it had a less g and we do nothing
-                    continue;
+                    // Found an optimal (so far) path to this cell.  Store info on how we got here and
+                    this.relax(neighbour,currentCell,newG);
+                    neighbour.f = neighbour.g + neighbour.h;
+        //cell.debug = "F: " + cell.f + "<br />G: " + cell.g + "<br />H: " + cell.h;
+                    if (!neighbour.visited) {
+                        openData.push(neighbour);
+                        neighbour.visited = true;
+                    }
                 }
 
-                // Found an optimal (so far) path to this cell.  Store info on how we got here and
                 
-                this.setNewParent(neighbour,currentCell,gScore);
+                
+                
             }
         }
  
@@ -83,14 +80,20 @@ var astar = {
         var endTime = (new Date()).getTime();
         return [[],endTime-startTime,0];
     },
+    pathTo: function (cell) {
+        var path = [];
+        while (cell.parent) {
+            path.push(cell);
+            cell = cell.parent;
+        }
+        return path.reverse();
+    },
     getG: function (cell, parent) {
         return (parent.g + Math.sqrt(Math.abs(cell.i-parent.i)+Math.abs(cell.j-parent.j)));
     },
-    setNewParent: function(cell, parent, G) {
+    relax: function(cell, parent, G) {
         cell.parent = parent;
         cell.g = G;
-        cell.f = cell.g + cell.h;
-        //cell.debug = "F: " + cell.f + "<br />G: " + cell.g + "<br />H: " + cell.h;
     },
     isWallCorner: function (cell,parent) {
         if (Math.abs(cell.i-parent.i)+Math.abs(cell.j-parent.j)!=2)
@@ -98,6 +101,7 @@ var astar = {
         return (map[cell.i][parent.j].isWall()||map[parent.i][cell.j].isWall());
     },
     removeCell: function(list, cell) {
+        //too slow
         var retList = [];
         for (var i = list.length - 1; i >= 0; i--) {
             if (!CoordsEqual(list[i].coords(), cell.coords()))

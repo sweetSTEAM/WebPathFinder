@@ -273,7 +273,7 @@ function cell(x, y, type) {
 	this.j = y;
 	this.type = type || "free";
 	this.f = 0;
-    this.g = 0;
+    this.g = Infinity;
     this.h = 0;
     this.debug = "";
     this.parent = null;
