@@ -26,3 +26,11 @@ canvas {
 th {
     padding-right:10px;
 }
+
+.input-group {
+    width:150px; 
+}
+
+.lab {
+    margin-top:10px;
+}

@@ -13,7 +13,7 @@ var astar = {
         }
     },
     search: function(map, start, end, options) {
-        options = [true, false]; 
+        options = options || [true, false]; 
         this.diagonal = options[0];
         astar.ClearParams(map); //If map wasn't regenerated, all params will remain from previous search
         start.g = 0;
@@ -59,7 +59,7 @@ var astar = {
                 if (neighbour.g > newG) {
                     // This the the first time we have arrived at this cell, it must be the best
                     // Also, we need to take the h (heuristic) score since we haven't done so yet
-                    neighbour.h = astar.heuristic(neighbour, end);
+                    neighbour.h = UseAstar ? astar.heuristic(neighbour, end): 0;
                     // Found an optimal (so far) path to this cell.  Store info on how we got here and
                     this.relax(neighbour,currentCell,newG);
                     neighbour.f = neighbour.g + neighbour.h;
@@ -89,7 +89,7 @@ var astar = {
         return path.reverse();
     },
     getG: function (cell, parent) {
-        return (parent.g + Math.sqrt(Math.abs(cell.i-parent.i)+Math.abs(cell.j-parent.j)));
+        return (parent.g + Math.sqrt(Math.pow(cell.i-parent.i,2)+Math.pow(cell.j-parent.j,2)));
     },
     relax: function(cell, parent, G) {
         cell.parent = parent;
