@@ -69,7 +69,8 @@ var astar = {
         return path.reverse();
     },
     getG: function (cell, newparent) {
-        return (newparent.g + Math.sqrt(Math.pow(cell.i-newparent.i,2)+Math.pow(cell.j-newparent.j,2)));
+        var weigth = (Math.abs(cell.i-newparent.i) + Math.abs(cell.j-newparent.j) == 2) ? 14: 10;
+        return (newparent.g + weigth);
     },
     relax: function(cell, newparent, G) {
         cell.parent = newparent;
@@ -98,8 +99,8 @@ var astar = {
     },
     heuristic: function(pos0, pos1) {
         //Diagonal distance
-        var D = 1;
-        var D2 = Math.sqrt(2);
+        var D = 10;
+        var D2 = 14;
         var d1 = Math.abs(pos1.i - pos0.i);
         var d2 = Math.abs(pos1.j - pos0.j);
         return (D * (d1 + d2)) + ((D2 - (2 * D)) * Math.min(d1, d2));

@@ -1,6 +1,6 @@
 'use strict';
+//Initializing global variables
 var canvas = document.getElementById('map');
-console.log(canvas);
 var ctx = canvas.getContext('2d');
 var anim = document.getElementById('anim');
 var ctx2 = anim.getContext('2d');
@@ -14,6 +14,8 @@ var pathbutt = document.getElementById('pathbutt');
 var checkGrid = document.getElementById('checkGrid');
 var AstarBtn = document.getElementById('AstarBtn');
 var DBtn = document.getElementById('DBtn');
+var diagEn = document.getElementById('diagEn');
+var diagDis = document.getElementById('diagDis');
 var edits = ['#rowEdit','#WallEdit','#columnEdit','#SqSizeEdit'];
 ctx2.fillStyle = "#000000";
 ctx2.fillRect(0, 0, anim.width, anim.height);
@@ -42,14 +44,18 @@ var wallPressed = false;
 var inter = false;
 var inter2 = false;
 var UseAstar = true;
+var diagonal = true;
 
 canvas.width = XDist + SqSize * mapM + 1;
 canvas.height = YDist + SqSize * mapN + 1;
+
+//Filling edit controls
 rowEdit.value = mapN;
 columnEdit.value = mapM;
 SqSizeEdit.value = SqSize;
 WallEdit.value = wallPercent*100;
 
+//Defining functions
 function redefParams() {
 	if (inter) {
 		clearInterval(inter);
@@ -188,7 +194,7 @@ function showInfo (currPath,timePath,pathLength) {
 									<td>' + timePath + ' ms</td>\
 								</tr>'
 	if (currPath.length) {
-		$('#infoButt').attr('data-original-title','Algorithm results');
+		$('#infoButt').attr('data-original-title', UseAstar ? 'A* results': 'Dijkstra results');
 		$('#infoButt').popover("show"); //Popover should be shown for css changes
 		$('.popover-title').css({'background-color': '#DFF2BF', 'color': '#4F8A10'});
 		
@@ -242,34 +248,47 @@ function AStarDraw(SelectedStart, SelectedEnd) {
 
 	//Search call
 	setTimeout(function () {
-		result = astar.search(map, SelectedStart, SelectedEnd, [true,UseAstar]);
-	currPath = result[0];
-	var timePath = result[1];
-	var pathLength = result[2];
-	var p = 0;
+    	result = astar.search(map, SelectedStart, SelectedEnd, [diagonal,UseAstar]);
+    	currPath = result[0];
+    	var timePath = result[1];
+    	var pathLength = result[2];
+    	var p = 0;
 
-	if (debugEn) {
-		inter2 = setInterval(function() {
-			if (p<visitedCells.length) {
-		        if (!visitedCells[p].isStartEnd()) {
-		           visitedCells[p].changeType("open");
-		        }
-		        p++;
-		    } else {
-		    	clearInterval(inter2);
-		    	pathDraw(currPath,timePath,pathLength);
-		    }
-	    }, 1);
-	} else {
-		pathDraw(currPath,timePath,pathLength);
-	}
+    	if (debugEn) {
+    		inter2 = setInterval(function() {
+    			if (p<visitedCells.length) {
+    		        if (!visitedCells[p].isStartEnd()) {
+    		           visitedCells[p].changeType("open");
+    		        }
+    		        p++;
+    		    } else {
+    		    	clearInterval(inter2);
+    		    	pathDraw(currPath,timePath,pathLength);
+    		    }
+    	    }, 1);
+    	} else {
+    		pathDraw(currPath,timePath,pathLength);
+    	}
 
-	showInfo(currPath,timePath,pathLength);
+    	showInfo(currPath,timePath,pathLength);
 	},1); 
 	
 }
 
-///////////////////////////////////////////////////////Cell prototype
+function FILL2(color, x, y) {
+    anim.style.display = "block";
+    anim.style.left = x + 1 + "px";
+    anim.style.top = y + 1 + "px";
+    anim.height = SqSize-1;
+    anim.width = SqSize-1;
+    ctx2.fillStyle = color;
+    ctx2.fillRect(0, 0, anim.height, anim.height);
+}
+
+
+/***************************************************
+Cell prototype
+****************************************************/
 
 function cell(x, y, type) {
 	//init of fields
@@ -319,19 +338,13 @@ cell.prototype.isOpen = function () {
 }
 
 
+
+
+/***********************************************
+*Handlers
+************************************************/
+
 var CurrHandlCoord = false;
-
-/////////////////////////////////////////////////////////////Handlers
-function FILL2(color, x, y) {
-	anim.style.display = "block";
-	anim.style.left = x + 1 + "px";
-	anim.style.top = y + 1 + "px";
-	anim.height = SqSize-1;
-	anim.width = SqSize-1;
-	ctx2.fillStyle = color;
-	ctx2.fillRect(0, 0, anim.height, anim.height);
-}
-
 
 canvas.onmousemove = function (event) {
 	CurrHandlCoord = absToOtn(event.layerX, event.layerY, event.pageX, event.pageY);
@@ -346,7 +359,7 @@ canvas.onmousemove = function (event) {
 			if (LastHandlCoord) {anim.style.display = "none";};
 		}
 		if (currStatus=="wall"&&wallPressed) {
-			if (!_CurrHandlCoord.isStartEnd()) { //TODO: onclick + onmousemove
+			if (!_CurrHandlCoord.isStartEnd()) {
 				if (_CurrHandlCoord.isWall()) {
 					_CurrHandlCoord.changeType("free",true,PageX,PageY);
 				} else {
@@ -384,7 +397,7 @@ for (var i in ["#map","#anim"]) {
 				}
 			} else {
 				wallPressed = true;
-				if (!_CurrHandlCoord.isStartEnd()) { //TODO: onclick + onmousemove
+				if (!_CurrHandlCoord.isStartEnd()) {
 					if (_CurrHandlCoord.isWall()) {
 						_CurrHandlCoord.changeType("free",true,PageX,PageY);
 					} else {
@@ -428,6 +441,14 @@ AstarBtn.onchange = function (event) {
 
 DBtn.onchange = function (event) {
     UseAstar = false;
+}
+
+diagEn.onchange = function (event) {
+    diagonal = true;
+}
+
+diagDis.onchange = function (event) {
+    diagonal = false;
 }
 
 for (var i in edits) {
