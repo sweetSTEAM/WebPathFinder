@@ -12,6 +12,8 @@ var WallEdit = document.getElementById('WallEdit');
 var wallbutt = document.getElementById('wallbutt');
 var pathbutt = document.getElementById('pathbutt');
 var checkGrid = document.getElementById('checkGrid');
+var AstarBtn = document.getElementById('AstarBtn');
+var DBtn = document.getElementById('DBtn');
 var edits = ['#rowEdit','#WallEdit','#columnEdit','#SqSizeEdit'];
 ctx2.fillStyle = "#000000";
 ctx2.fillRect(0, 0, anim.width, anim.height);
@@ -39,6 +41,8 @@ var debugEn = false;
 var wallPressed = false;
 var inter = false;
 var inter2 = false;
+var UseAstar = true;
+
 canvas.width = XDist + SqSize * mapM + 1;
 canvas.height = YDist + SqSize * mapN + 1;
 rowEdit.value = mapN;
@@ -80,7 +84,7 @@ function generateMap(randWall) {
 		map.push([]);
 		for (var j = 0; j < mapM; j++) {
 			map[i][j] = new cell(i, j, "free");
-			map[i][j].changeType((Math.random() < wallPercent) ? "wall" : "free"); //random
+			map[i][j].changeType((Math.random() < wallPercent) ? "wall" : "free");
 		}
 	}
 	$('#infoButt').popover("show");
@@ -238,7 +242,7 @@ function AStarDraw(SelectedStart, SelectedEnd) {
 
 	//Search call
 	setTimeout(function () {
-		result = astar.search(map, SelectedStart, SelectedEnd, [true]);
+		result = astar.search(map, SelectedStart, SelectedEnd, [true,UseAstar]);
 	currPath = result[0];
 	var timePath = result[1];
 	var pathLength = result[2];
@@ -268,7 +272,7 @@ function AStarDraw(SelectedStart, SelectedEnd) {
 ///////////////////////////////////////////////////////Cell prototype
 
 function cell(x, y, type) {
-	//init
+	//init of fields
 	this.i = x;
 	this.j = y;
 	this.type = type || "free";
@@ -396,6 +400,7 @@ for (var i in ["#map","#anim"]) {
 		}
 	)
 }
+
 wallbutt.onchange = function (event) {
 	currStatus = "wall";
 }
@@ -415,6 +420,14 @@ pathbutt.onchange = function (event) {
 
 redrawButt.onclick = function (event) {
 	generateMap(true);
+}
+
+AstarBtn.onchange = function (event) {
+    UseAstar = true;
+}
+
+DBtn.onchange = function (event) {
+    UseAstar = false;
 }
 
 for (var i in edits) {

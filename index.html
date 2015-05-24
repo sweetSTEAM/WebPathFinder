@@ -7,104 +7,120 @@
         <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet" type="text/css" href="styles.css" />
     </head>
-        <nav class="navbar navbar-default navbar-fixed-bottom" id="navbar">
-          <div class="container-fluid">
-            <div class="navbar-header" style="display: inline">
-              <a class="navbar-brand" href="#">WebPathFinder</a>
-              <div class="btn-group navbar-left">
-                  <button id="infoButt" data-toggle="popover" data-html="true" data-placement="top" type="button" class="navbar-left navbar-btn btn btn-primary" data-original-title="Getting started" data-content="Select two cells</br> to find the shortest way">Info</button>
-                  <button id="settingsButt" style="" type="button" class="navbar-left navbar-btn btn btn-primary">Settings</button>
-              </div>
-            <div class="btn-group navbar-left container-fluid navbar-btn" data-toggle="buttons">
-                <label class="btn btn-primary active">
-                    <input type="radio" name="options" id="pathbutt" autocomplete="off"><img src="pathpoint.png">
-                </label>
-                <label class="btn btn-primary">
-                    <input type="radio" name="options" id="wallbutt" autocomplete="off" checked><img src="wall.png">
-                </label>
-            </div> 
-            <div class="btn-group navbar-left navbar-btn" data-toggle="buttons">
-                  <label class="btn btn-primary">
-                    <input id="checkDebug" type="checkbox" autocomplete="off">Debug
-                  </label>
+    <nav class="navbar navbar-default navbar-fixed-bottom" id="navbar">
+        <div class="container-fluid">
+            <div class="navbar-header" style="display: inline"> <a class="navbar-brand" href="#">WebPathFinder</a>
+
+                <div class="btn-group navbar-left">
+                    <button id="infoButt" data-toggle="popover" data-html="true" data-placement="top" type="button" class="navbar-left navbar-btn btn btn-primary" data-original-title="Getting started" data-content="Select two cells</br> to find the shortest way">Info</button>
+                    <button id="settingsButt" style="" type="button" class="navbar-left navbar-btn btn btn-primary">Settings</button>
                 </div>
-                    
+                <div class="btn-group navbar-left container-fluid navbar-btn" data-toggle="buttons">
+                    <label class="btn btn-primary active">
+                        <input type="radio" name="options" id="pathbutt" autocomplete="off">
+                        <img src="pathpoint.png">
+                    </label>
+                    <label class="btn btn-primary">
+                        <input type="radio" name="options" id="wallbutt" autocomplete="off" checked>
+                        <img src="wall.png">
+                    </label>
+                </div>
+                <div class="btn-group navbar-left navbar-btn" data-toggle="buttons">
+                    <label class="btn btn-primary">
+                        <input id="checkDebug" type="checkbox" autocomplete="off">Debug</label>
+                </div>
             </div>
-
-            <form class="navbar-form navbar-left" role="form">
-                <div class="row">
-                    
-                    <div class="col-xs-3 col-sm-2">
-                        <div class="input-group">
-                            <span class="input-group-addon">Rows</span>
-                            <input id="rowEdit" type="text" class="form-control" placeholder="Row">
-                        </div>
-                    </div>
-
-                     <div class="col-xs-3 col-sm-2 ">
-                        <div class="input-group">
-                            <span class="input-group-addon">Col</span>
-                            <input id="columnEdit" type="text" class="form-control" placeholder="Columns">
-                        </div>
-                    </div>
-
-                    <div class="col-xs-3 col-sm-2 ">
-                        <div class="input-group">
-                            <span class="input-group-addon">Grid</span>
-                            <input id="SqSizeEdit" type="text" class="form-control" placeholder="Columns">
-                        </div>
-                    </div>
-
-                    <div class="col-xs-3 col-sm-2 ">
-                        <div class="input-group">
-                            <span class="input-group-addon">Wall</span>
-                            <input id="WallEdit" type="text" class="form-control" placeholder="Wall">
-                            <span class="input-group-addon">%</span>
-                        </div>
-                    </div>
-                    
-                    
+            <div class="navbar-form navbar-left">
+                <div class="input-group">
+                    <span class="input-group-addon">Rows</span>
+                    <input id="rowEdit" type="text" class="form-control" placeholder="Row">
                 </div>
-
-            </form>
-
+            </div>
+            <div class="navbar-form navbar-left">
+                <div class="input-group">
+                    <span class="input-group-addon">Col</span>
+                    <input id="columnEdit" type="text" class="form-control" placeholder="Columns">
+                </div>
+            </div>
+            <div class="navbar-form navbar-left">
+                <div class="input-group">
+                    <span class="input-group-addon">Grid</span>
+                    <input id="SqSizeEdit" type="text" class="form-control" placeholder="Columns">
+                </div>
+            </div>
+            <div class="navbar-form navbar-left ">
+                <div class="input-group">
+                    <span class="input-group-addon">Wall</span>
+                    <input id="WallEdit" type="text" class="form-control" placeholder="Wall">
+                    <span class="input-group-addon">%</span>
+                </div>
+            </div>
             <ul class="nav navbar-nav navbar-right container-fluid">
-                <li><button id="redrawButt" type="button" class="btn btn-primary navbar-btn">Redraw map</button></li>
-            </ul> 
-          </div>
-        </nav>
-
-        <!-- Modal -->
-        <div class="modal fade bs-example-modal-sm" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-          <div class="modal-dialog modal-sm">
-            <div class="modal-content">
-              <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="myModalLabel">Settings</h4>
-              </div>
-              <div class="modal-body">
-                <div class="btn-group" data-toggle="buttons">
-                      <label class="btn btn-primary active">
-                        <input id="checkGrid" type="checkbox" autocomplete="off" checked>Grid
-                      </label>
-                    </div>
-              </div>
-            </div>
-          </div>
+                <li>
+                    <button id="redrawButt" type="button" class="btn btn-primary navbar-btn">Redraw map</button>
+                </li>
+            </ul>
         </div>
-        <script src="jq.js"></script>
-        <script src="bootstrap/js/bootstrap.min.js"></script>
-        <script src="BinaryHeap.js"></script>
-        <script src='astar.js'></script>
-        <canvas id='map'>Обновите браузер</canvas>
-        <canvas id="anim"></canvas>
-        <script src="canvas.js"></script>
+    </nav>
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                    </button>
+                     <h4 class="modal-title" id="myModalLabel">Settings</h4>
 
-        <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-        
-        <!-- Include all compiled plugins (below), or include individual files as needed -->
-        
-
+                </div>
+                <div class="modal-body">
+                <div><label>Algorithm:</label></div>
+                    <div class="btn-group " data-toggle="buttons">
+                        
+                        <label class="btn btn-primary active">
+                            <input type="radio" name="options" id="AstarBtn" autocomplete="off" checked>
+                            A*
+                        </label>
+                        <label class="btn btn-primary">
+                            <input type="radio" name="options" id="DBtn" autocomplete="off">
+                            Dijkstra
+                        </label>
+                    </div>
+                    <br/>
+                    <div><label class="lab">Debug mode (WIP):</label></div>
+                    <div class="btn-group " data-toggle="buttons" disabled>
+                        
+                        <label class="btn btn-primary active disabled">
+                            <input type="radio" name="options" id="DStandart" autocomplete="off" checked>
+                            Standart
+                        </label>
+                        <label class="btn btn-primary disabled">
+                            <input type="radio" name="options" id="DParent" autocomplete="off">
+                            Parents
+                        </label>
+                        <label class="btn btn-primary disabled">
+                            <input type="radio" name="options" id="DF" autocomplete="off">
+                            F(v)
+                        </label>
+                    </div>
+                    <div><label class="lab">Cells borders:</label></div>
+                    <div class="btn-group" data-toggle="buttons">
+                        <label class="btn btn-primary active">
+                            <input id="checkGrid" type="checkbox" autocomplete="off" checked>Show</label>
+                    </div>
+                    
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="jq.js"></script>
+    <script src="bootstrap/js/bootstrap.min.js"></script>
+    <script src='astar.js'></script>
+    <canvas id='map'>Обновите браузер</canvas>
+    <canvas id="anim"></canvas>
+    <script src="canvas.js"></script>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
     </body>
 
 </html>

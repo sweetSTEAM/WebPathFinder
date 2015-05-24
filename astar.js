@@ -13,45 +13,31 @@ var astar = {
         }
     },
     search: function(map, start, end, options) {
-        options = [true, false]; 
+        options = options || [true, true]; 
         this.diagonal = options[0];
+        this.UseAstar = options[1];
         astar.ClearParams(map); //If map wasn't regenerated, all params will remain from previous search
         start.g = 0;
         if (debugEn) visitedCells = [];
-
-            var openData  = [];
-        
+        var openData  = [];
         var startTime = (new Date()).getTime();
-
         openData.push(start);
         while (openData.length) {
-            var min = 0;
-            for(var i=0; i<openData.length; i++) {
-                if(openData[i].f < openData[min].f) { min = i; }
-            }
-            var currentCell = openData[min];
-
+            var currentCell = this.extractMin(openData);
+            currentCell.closed = true;
             if (debugEn) visitedCells.push(currentCell);
-
             //If result has been found, return the traced path
             if (CoordsEqual(currentCell.coords(),end.coords())) {
-                var path = this.pathTo(end);
-                var endTime = (new Date()).getTime();
-                return [path,endTime-startTime,currentCell.g];
+                return [this.pathTo(end),(new Date()).getTime()-startTime,currentCell.g];
             }
- 
             //Move curr cell from open to closed, check neighbours
-            openData = this.removeCell(openData,currentCell); 
-            currentCell.closed = true;
             var neighbours = this.getNeighbours(map, currentCell);
- 
             for(var i=0; i<neighbours.length;i++) {
                 var neighbour = neighbours[i];
-                if(neighbour.closed || neighbour.isWall() || this.isWallCorner(neighbour,currentCell)) {
+                if(neighbour.closed || neighbour.isWall() || this.isWallCorner(neighbour,currentCell,map)) {
                     // if cell is not a valid to process, skip to next neighbour
                     continue;
                 }
- 
                 // g score is the shortest distance from start to current cell, we need to check if
                 //   the path we have arrived at this neighbour is the shortest one we have seen yet
                 var newG = this.getG(neighbour,currentCell); // 1 is the distance from a cell to it's neighbour
@@ -59,23 +45,17 @@ var astar = {
                 if (neighbour.g > newG) {
                     // This the the first time we have arrived at this cell, it must be the best
                     // Also, we need to take the h (heuristic) score since we haven't done so yet
-                    neighbour.h = astar.heuristic(neighbour, end);
+                    neighbour.h = this.UseAstar ? astar.heuristic(neighbour, end): 0;
                     // Found an optimal (so far) path to this cell.  Store info on how we got here and
                     this.relax(neighbour,currentCell,newG);
                     neighbour.f = neighbour.g + neighbour.h;
-        //cell.debug = "F: " + cell.f + "<br />G: " + cell.g + "<br />H: " + cell.h;
                     if (!neighbour.visited) {
                         openData.push(neighbour);
                         neighbour.visited = true;
                     }
                 }
-
-                
-                
-                
             }
         }
- 
         // No path was found, empty array signifies failure to find path
         var endTime = (new Date()).getTime();
         return [[],endTime-startTime,0];
@@ -88,26 +68,33 @@ var astar = {
         }
         return path.reverse();
     },
-    getG: function (cell, parent) {
-        return (parent.g + Math.sqrt(Math.abs(cell.i-parent.i)+Math.abs(cell.j-parent.j)));
+    getG: function (cell, newparent) {
+        return (newparent.g + Math.sqrt(Math.pow(cell.i-newparent.i,2)+Math.pow(cell.j-newparent.j,2)));
     },
-    relax: function(cell, parent, G) {
-        cell.parent = parent;
+    relax: function(cell, newparent, G) {
+        cell.parent = newparent;
         cell.g = G;
     },
-    isWallCorner: function (cell,parent) {
-        if (Math.abs(cell.i-parent.i)+Math.abs(cell.j-parent.j)!=2)
+    isWallCorner: function(cell,parent,map) {
+        if ((!this.diagonal)||Math.abs(cell.i-parent.i)+Math.abs(cell.j-parent.j)!=2)
             return false;
         return (map[cell.i][parent.j].isWall()||map[parent.i][cell.j].isWall());
     },
-    removeCell: function(list, cell) {
+    extractMin: function(openData) {
         //too slow
-        var retList = [];
-        for (var i = list.length - 1; i >= 0; i--) {
-            if (!CoordsEqual(list[i].coords(), cell.coords()))
-                retList.push(list[i]);
+
+        var min = 0;
+        for(var i=0; i<openData.length; i++) {
+            if(openData[i].f < openData[min].f) { min = i; }
         }
-        return retList;
+        var cell = openData[min];
+        var p = 0;
+        for (var i = 0; i < openData.length; i++) {
+            if (!CoordsEqual(openData[i].coords(), cell.coords()))
+                openData[p++] = openData[i];
+        }
+        openData.length = p;
+        return cell;
     },
     heuristic: function(pos0, pos1) {
         //Diagonal distance
