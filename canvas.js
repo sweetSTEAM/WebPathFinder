@@ -84,7 +84,7 @@ function generateMap(randWall) {
 		map.push([]);
 		for (var j = 0; j < mapM; j++) {
 			map[i][j] = new cell(i, j, "free");
-			map[i][j].changeType((Math.random() < wallPercent) ? "wall" : "free"); //random
+			map[i][j].changeType((Math.random() < wallPercent) ? "wall" : "free");
 		}
 	}
 	$('#infoButt').popover("show");
@@ -242,7 +242,7 @@ function AStarDraw(SelectedStart, SelectedEnd) {
 
 	//Search call
 	setTimeout(function () {
-		result = astar.search(map, SelectedStart, SelectedEnd, [true]);
+		result = astar.search(map, SelectedStart, SelectedEnd, [true,UseAstar]);
 	currPath = result[0];
 	var timePath = result[1];
 	var pathLength = result[2];
