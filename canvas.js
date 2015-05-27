@@ -1,59 +1,59 @@
 'use strict';
 //Initializing global variables
-var canvas = document.getElementById('map');
-var ctx = canvas.getContext('2d');
-var anim = document.getElementById('anim');
-var ctx2 = anim.getContext('2d');
-var redrawButt = document.getElementById('redrawButt');
-var rowEdit = document.getElementById('rowEdit');
-var columnEdit = document.getElementById('columnEdit');
-var SqSizeEdit = document.getElementById('SqSizeEdit');
-var WallEdit = document.getElementById('WallEdit');
-var wallbutt = document.getElementById('wallbutt');
-var pathbutt = document.getElementById('pathbutt');
-var checkGrid = document.getElementById('checkGrid');
-var AstarBtn = document.getElementById('AstarBtn');
-var DBtn = document.getElementById('DBtn');
-var diagEn = document.getElementById('diagEn');
-var diagDis = document.getElementById('diagDis');
-var edits = ['#rowEdit','#WallEdit','#columnEdit','#SqSizeEdit'];
-ctx2.fillStyle = "#000000";
-ctx2.fillRect(0, 0, anim.width, anim.height);
-var docHeight = $(document).height()-$("#navbar").height();
-var docWidth = $(document).width();
-var XDist = 1;
-var YDist = 21;
-var SqSize = 30;
-var map = [];
-var wallPercent = 0.125;
-var mapN = Math.floor(docHeight/SqSize)-1;
-var mapM = Math.floor(docWidth/SqSize)-1;
-var map = [];
+var canvas         = document.getElementById('map');
+var ctx            = canvas.getContext('2d');
+var anim           = document.getElementById('anim');
+var ctx2           = anim.getContext('2d');
+var redrawButt     = document.getElementById('redrawButt');
+var rowEdit        = document.getElementById('rowEdit');
+var columnEdit     = document.getElementById('columnEdit');
+var SqSizeEdit     = document.getElementById('SqSizeEdit');
+var WallEdit       = document.getElementById('WallEdit');
+var wallbutt       = document.getElementById('wallbutt');
+var pathbutt       = document.getElementById('pathbutt');
+var checkGrid      = document.getElementById('checkGrid');
+var AstarBtn       = document.getElementById('AstarBtn');
+var DBtn           = document.getElementById('DBtn');
+var diagEn         = document.getElementById('diagEn');
+var diagDis        = document.getElementById('diagDis');
+var edits          = ['#rowEdit','#WallEdit','#columnEdit','#SqSizeEdit'];
+var docHeight      = $(document).height()-$("#navbar").height();
+var docWidth       = $(document).width();
+var XDist          = 1;
+var YDist          = 21;
+var SqSize         = 30;
+var map            = [];
+var wallPercent    = 0.125;
+var mapN           = Math.floor(docHeight/SqSize)-1;
+var mapM           = Math.floor(docWidth/SqSize)-1;
+var map            = [];
 var LastHandlCoord = false;
-var colors = { "free": "#FFFFFF", "wall": "#505050", "start": "#B00000", "end": "#B00000", "path" : "#E51A4C", "open": "#6495ED", "selected": "red" };
-var SelectedStart = false;
-var SelectedEnd = false;
-var StartSelect = false;
-var map = [];
-var currPath = false;
-var currStatus = "selected";
-var gridEn = true;
-var visitedCells = false;
-var debugEn = false;
-var wallPressed = false;
-var inter = false;
-var inter2 = false;
-var UseAstar = true;
-var diagonal = true;
+var colors         = { "free": "#FFFFFF", "wall": "#505050", "start": "#B00000", "end": "#B00000", "path" : "#E51A4C", "open": "#6495ED", "selected": "red" };
+var SelectedStart  = false;
+var SelectedEnd    = false;
+var StartSelect    = false;
+var map            = [];
+var currPath       = false;
+var currStatus     = "selected";
+var gridEn         = true;
+var visitedCells   = false;
+var debugEn        = false;
+var wallPressed    = false;
+var inter          = false;
+var inter2         = false;
+var UseAstar       = true;
+var diagonal       = true;
 
-canvas.width = XDist + SqSize * mapM + 1;
-canvas.height = YDist + SqSize * mapN + 1;
+ctx2.fillRect(0, 0, anim.width, anim.height);
+ctx2.fillStyle     = "#000000";
+canvas.width       = XDist + SqSize * mapM + 1;
+canvas.height      = YDist + SqSize * mapN + 1;
 
 //Filling edit controls
-rowEdit.value = mapN;
-columnEdit.value = mapM;
-SqSizeEdit.value = SqSize;
-WallEdit.value = wallPercent*100;
+rowEdit.value      = mapN;
+columnEdit.value   = mapM;
+SqSizeEdit.value   = SqSize;
+WallEdit.value     = wallPercent*100;
 
 //Defining functions
 function redefParams() {
@@ -191,8 +191,8 @@ function showInfo (currPath,timePath,pathLength) {
 	var content_text = '<table>\
 								<tr>\
 									<th>Time: </th>\
-									<td>' + timePath + ' ms</td>\
-								</tr>'
+									<td style="width:40px;">' + timePath + ' ms</td>\
+								</tr>';
 	if (currPath.length) {
 		$('#infoButt').attr('data-original-title', UseAstar ? 'A* results': 'Dijkstra results');
 		$('#infoButt').popover("show"); //Popover should be shown for css changes
@@ -461,9 +461,7 @@ for (var i in edits) {
 	)
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
-
-
+//Init
 generateMap(true);
 
 

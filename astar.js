@@ -5,10 +5,10 @@ var astar = {
                 map[x][y].f = 0;
                 map[x][y].g = Infinity;
                 map[x][y].h = 0;
-                //map[x][y].debug = "";
                 map[x][y].parent = null;
                 map[x][y].visited = false;
                 map[x][y].closed = false;
+                //map[x][y].debug = "";
             }   
         }
     },
@@ -16,7 +16,7 @@ var astar = {
         options = options || [true, true]; 
         this.diagonal = options[0];
         this.UseAstar = options[1];
-        astar.ClearParams(map); //If map wasn't regenerated, all params will remain from previous search
+        astar.ClearParams(map);
         start.g = 0;
         if (debugEn) visitedCells = [];
         var openData  = [];
@@ -28,7 +28,11 @@ var astar = {
             if (debugEn) visitedCells.push(currentCell);
             //If result has been found, return the traced path
             if (CoordsEqual(currentCell.coords(),end.coords())) {
-                return [this.pathTo(end),(new Date()).getTime()-startTime,currentCell.g];
+                return [
+                        this.pathTo(end), //path
+                        (new Date()).getTime()-startTime, //time
+                        currentCell.g //length
+                       ];
             }
             //Move curr cell from open to closed, check neighbours
             var neighbours = this.getNeighbours(map, currentCell);
@@ -38,15 +42,11 @@ var astar = {
                     // if cell is not a valid to process, skip to next neighbour
                     continue;
                 }
-                // g score is the shortest distance from start to current cell, we need to check if
-                //   the path we have arrived at this neighbour is the shortest one we have seen yet
-                var newG = this.getG(neighbour,currentCell); // 1 is the distance from a cell to it's neighbour
+
+                var newG = this.getG(neighbour,currentCell);
  
                 if (neighbour.g > newG) {
-                    // This the the first time we have arrived at this cell, it must be the best
-                    // Also, we need to take the h (heuristic) score since we haven't done so yet
                     neighbour.h = this.UseAstar ? astar.heuristic(neighbour, end): 0;
-                    // Found an optimal (so far) path to this cell.  Store info on how we got here and
                     this.relax(neighbour,currentCell,newG);
                     neighbour.f = neighbour.g + neighbour.h;
                     if (!neighbour.visited) {
@@ -56,7 +56,6 @@ var astar = {
                 }
             }
         }
-        // No path was found, empty array signifies failure to find path
         var endTime = (new Date()).getTime();
         return [[],endTime-startTime,0];
     },
